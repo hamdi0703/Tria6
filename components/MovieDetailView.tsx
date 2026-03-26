@@ -98,7 +98,7 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
 
                 {/* Reviews */}
                 <div className="border-t border-neutral-200 dark:border-neutral-800 pt-12">
-                    <ReviewSection movieId={movie.id} movieTitle={displayTitle} />
+                    <ReviewSection movieId={movie.id} movieTitle={displayTitle} cast={movie.credits?.cast} />
                 </div>
             </div>
 

@@ -36,7 +36,7 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({ onLogin, onNavigateApp })
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black text-lg shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
                 T.
             </div>
-            <span className="text-xl font-bold text-white tracking-tight hidden sm:block">Tria.</span>
+            <span className="text-xl font-bold text-white tracking-tight hidden sm:block">İzleme Listem.</span>
         </div>
 
         {/* Actions */}

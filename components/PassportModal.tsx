@@ -149,7 +149,7 @@ const PassportModal: React.FC<PassportModalProps> = ({ onClose }) => {
             />
             
             <div className="mt-8 flex gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                <span className="text-[10px] text-neutral-500 font-mono">POWERED BY TRIA DB</span>
+                <span className="text-[10px] text-neutral-500 font-mono">POWERED BY IZLEME LISTEM DB</span>
             </div>
         </div>
     </div>

@@ -163,6 +163,8 @@ export interface UserReview {
   category?: PostCategory; 
   tags?: PostCategory[]; 
   timestamp?: string; 
+  sceneTime?: string; // New: E.g., "01:23"
+  character?: string; // New: E.g., "Neo"
   title?: string; 
   createdAt: string;
   user_id?: string; 

@@ -21,6 +21,8 @@ export const reviewService = {
                 has_spoiler,
                 category,
                 tags,
+                scene_time,
+                character,
                 created_at,
                 upvotes,
                 downvotes,
@@ -69,6 +71,8 @@ export const reviewService = {
                 hasSpoiler: r.has_spoiler,
                 category: r.category || 'REVIEW',
                 tags: resolvedTags,
+                sceneTime: r.scene_time,
+                character: r.character,
                 createdAt: r.created_at,
                 upvotes: r.upvotes || 0,
                 downvotes: r.downvotes || 0,
@@ -123,6 +127,8 @@ export const reviewService = {
             hasSpoiler: data.has_spoiler,
             category: data.category || 'REVIEW',
             tags: resolvedTags,
+            sceneTime: data.scene_time,
+            character: data.character,
             createdAt: data.created_at,
             upvotes: data.upvotes || 0,
             downvotes: data.downvotes || 0,
@@ -146,18 +152,21 @@ export const reviewService = {
         const dbPayload = {
             user_id: userId,
             movie_id: review.movieId,
+            media_type: 'movie', // Varsayılan media_type
             rating: review.rating,
             comment: review.comment,
             has_spoiler: review.hasSpoiler || false,
             category: tagsToSave[0],
             tags: tagsToSave,
+            scene_time: review.sceneTime || null,
+            character: review.character || null,
             updated_at: new Date().toISOString()
         };
 
         // GÜNCELLEME: onConflict constraint ismini açıkça belirtiyoruz.
         const { error } = await supabase
             .from('reviews')
-            .upsert(dbPayload, { onConflict: 'user_id, movie_id' });
+            .upsert(dbPayload, { onConflict: 'user_id, movie_id, media_type' });
 
         if (error) {
             console.error("Upsert Error:", error);

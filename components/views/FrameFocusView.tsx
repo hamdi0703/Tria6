@@ -14,7 +14,54 @@ interface FrameFocusViewProps {
 }
 
 // Simplified for XML
-const GameGuide: React.FC<{ onClose: () => void }> = ({ onClose }) => <div className="fixed inset-0 z-modal bg-black/90"><button onClick={onClose}>Kapat</button></div>;
+const GameGuide: React.FC<{ onClose: () => void }> = ({ onClose }) => (
+    <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-neutral-900 border border-neutral-800 rounded-3xl p-8 max-w-lg w-full relative animate-slide-in-up text-left">
+            <button onClick={onClose} className="absolute top-6 right-6 text-neutral-500 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            <h2 className="text-2xl font-black text-white mb-6 uppercase tracking-wider">Nasıl Oynanır?</h2>
+
+            <div className="space-y-6 text-neutral-300 text-sm leading-relaxed">
+                <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-indigo-600/20 text-indigo-500 flex items-center justify-center font-black flex-shrink-0">1</div>
+                    <div>
+                        <strong className="text-white block mb-1">Bulanık Kareler</strong>
+                        Karşınıza rastgele seçilmiş filmlerden bir sahne (frame) gelecek, ancak bu sahne başlangıçta oldukça bulanık ve pikselli olacak.
+                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-purple-600/20 text-purple-500 flex items-center justify-center font-black flex-shrink-0">2</div>
+                    <div>
+                        <strong className="text-white block mb-1">Tahmin Et</strong>
+                        Filmin adını arama kutusuna yazarak tahmin etmeye çalışın. Ne kadar bulanıkken bilirseniz o kadar çok puan kazanırsınız!
+                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-pink-600/20 text-pink-500 flex items-center justify-center font-black flex-shrink-0">3</div>
+                    <div>
+                        <strong className="text-white block mb-1">Yardım Al (Netleştir)</strong>
+                        Eğer resmi çıkaramazsanız "Netleştir" butonunu kullanarak resmi biraz daha belirgin hale getirebilirsiniz. Ancak her netleştirme 100 puana mal olur.
+                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                    <div className="w-8 h-8 rounded-full bg-red-600/20 text-red-500 flex items-center justify-center font-black flex-shrink-0">4</div>
+                    <div>
+                        <strong className="text-white block mb-1">Can ve Süre</strong>
+                        Süreli modda her soru için 30 saniyeniz vardır. Yanlış tahminler veya süre aşımı can kaybettirir. Toplam 3 canınız bittiğinde oyun sona erer. Zen modunda süre ve can derdi olmadan rahatça oynayabilirsiniz.
+                    </div>
+                </div>
+            </div>
+
+            <button onClick={onClose} className="mt-8 w-full py-4 bg-white text-black font-black rounded-xl hover:scale-[1.02] transition-transform">
+                Anladım
+            </button>
+        </div>
+    </div>
+);
 
 const FrameFocusView: React.FC<FrameFocusViewProps> = ({ onExit, onGoToDetail }) => {
   const { state, startGame, submitGuess, skipRound, nextRound, enhanceImage } = useFrameFocusEngine();

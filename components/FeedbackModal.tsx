@@ -131,7 +131,7 @@ const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
                 </div>
                 <h3 className="text-3xl font-black text-neutral-900 dark:text-white mb-3 tracking-tight">Teşekkürler!</h3>
                 <p className="text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto leading-relaxed text-sm">
-                    Geri bildiriminiz başarıyla bize ulaştı. Tria'yı daha iyi bir yer yapmamıza yardımcı olduğunuz için minnettarız.
+                    Geri bildiriminiz başarıyla bize ulaştı. İzleme Listem'yı daha iyi bir yer yapmamıza yardımcı olduğunuz için minnettarız.
                 </p>
             </div>
         ) : (

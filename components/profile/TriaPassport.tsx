@@ -159,7 +159,7 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
 
         {/* --- FOOTER DECORATION --- */}
         <div className="mt-6 flex justify-between items-end opacity-30">
-             <div className="font-mono text-[8px] text-neutral-500 tracking-widest">TRIA ID: {username.substring(0,3).toUpperCase()}-{new Date().getFullYear()}</div>
+             <div className="font-mono text-[8px] text-neutral-500 tracking-widest">IZLEME LISTEM ID: {username.substring(0,3).toUpperCase()}-{new Date().getFullYear()}</div>
              <div className="text-[8px] text-neutral-500 font-bold uppercase">Since {memberSince}</div>
         </div>
 

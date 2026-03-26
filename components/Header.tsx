@@ -53,9 +53,9 @@ const Header: React.FC<HeaderProps> = ({
                   className="text-3xl font-bold tracking-tighter text-neutral-900 dark:text-white select-none cursor-pointer hover:opacity-80 transition-opacity"
                   role="button"
                   tabIndex={0}
-                  aria-label="Tria Anasayfa"
+                  aria-label="İzleme Listem Anasayfa"
               >
-              Tria.
+              İzleme Listem.
               </h1>
 
               {/* Desktop Nav */}

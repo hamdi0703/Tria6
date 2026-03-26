@@ -10,9 +10,12 @@ import { REVIEW_TAGS, getTagConfig } from '../../constants/reviewTags';
 import { reviewService } from '../../services/reviewService';
 import { useClickOutside } from '../../hooks/useClickOutside';
 
+import { Cast } from '../../types'; // Import for characters
+
 interface ReviewSectionProps {
   movieId: number;
   movieTitle: string;
+  cast?: Cast[]; // Optional cast data from parent
 }
 
 // --- SUB-COMPONENTS ---
@@ -195,6 +198,16 @@ const ReviewCard: React.FC<{
                                         </span>
                                     );
                                 })}
+                                {review.sceneTime && (
+                                    <span className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold border bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700">
+                                        ⏱ {review.sceneTime}
+                                    </span>
+                                )}
+                                {review.character && (
+                                    <span className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold border bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700">
+                                        👤 {review.character}
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -267,7 +280,7 @@ const ReviewCard: React.FC<{
     );
 };
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) => {
+const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast }) => {
   const { user, openAuthModal } = useAuth();
   const { showToast } = useToast();
   const { sharedList } = useCollectionContext();
@@ -287,6 +300,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
   
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
+  const [sceneTime, setSceneTime] = useState('');
+  const [character, setCharacter] = useState('');
   const [hasSpoiler, setHasSpoiler] = useState(false);
   const [revealedSpoilers, setRevealedSpoilers] = useState<Set<string>>(new Set());
   
@@ -307,6 +322,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
       if (myReview) {
           setRating(myReview.rating);
           setContent(myReview.comment);
+          setSceneTime(myReview.sceneTime || '');
+          setCharacter(myReview.character || '');
           setHasSpoiler(myReview.hasSpoiler || false);
           const tags = myReview.tags && myReview.tags.length > 0 
             ? myReview.tags 
@@ -315,6 +332,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
       } else if (!isEditing) {
           setRating(0);
           setContent('');
+          setSceneTime('');
+          setCharacter('');
           setHasSpoiler(false);
           setSelectedTags(['REVIEW']); 
       }
@@ -354,6 +373,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
               movieId, 
               rating, 
               comment: content, 
+              sceneTime,
+              character,
               hasSpoiler, 
               tags: selectedTags 
           };
@@ -558,6 +579,33 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
                                         </button>
                                     );
                                 })}
+                            </div>
+                        </div>
+
+                        {/* EXTRA FIELDS: SCENE TIME AND CHARACTER */}
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">Sahne Zamanı</label>
+                                <input
+                                    type="text"
+                                    placeholder="Örn: 01:23"
+                                    value={sceneTime}
+                                    onChange={(e) => setSceneTime(e.target.value)}
+                                    className="w-full bg-neutral-50 dark:bg-neutral-900/50 p-3 rounded-xl text-sm text-neutral-900 dark:text-white border border-transparent focus:border-indigo-500/50 outline-none transition-colors"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2">Karakter</label>
+                                <select
+                                    value={character}
+                                    onChange={(e) => setCharacter(e.target.value)}
+                                    className="w-full bg-neutral-50 dark:bg-neutral-900/50 p-3 rounded-xl text-sm text-neutral-900 dark:text-white border border-transparent focus:border-indigo-500/50 outline-none transition-colors appearance-none"
+                                >
+                                    <option value="">Seçiniz...</option>
+                                    {cast && cast.slice(0, 20).map(c => (
+                                        <option key={c.id} value={c.name}>{c.name} ({c.character})</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

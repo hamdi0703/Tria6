@@ -9,7 +9,7 @@ const LandingFooter: React.FC = () => {
           
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="text-2xl font-black text-white tracking-tighter mb-4">Tria.</div>
+            <div className="text-2xl font-black text-white tracking-tighter mb-4">İzleme Listem.</div>
             <p className="text-xs text-neutral-500 leading-relaxed">
               Yapay zeka destekli, modern ve estetik film keşif platformu. Sinema tutkunları için tasarlandı.
             </p>
@@ -51,7 +51,7 @@ const LandingFooter: React.FC = () => {
 
         <div className="border-t border-neutral-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-neutral-600">
-            © 2024 Tria Platform. Tüm hakları saklıdır.
+            © 2024 İzleme Listem Platform. Tüm hakları saklıdır.
           </p>
           <div className="flex gap-2">
              <div className="w-2 h-2 rounded-full bg-green-500"></div>

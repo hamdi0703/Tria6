@@ -23,7 +23,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black font-black text-lg shadow-lg group-hover:scale-105 transition-transform">
                     T.
                 </div>
-                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Tria.</span>
+                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">İzleme Listem.</span>
             </div>
             <p className="text-xs text-neutral-500 leading-relaxed font-medium max-w-xs">
               Sinema dünyasını yapay zeka ile keşfedin. Kişisel koleksiyonlar oluşturun, analiz edin ve paylaşın.
@@ -110,7 +110,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         <div className="border-t border-neutral-200 dark:border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-neutral-500 font-medium">
-            © {currentYear} Tria Platform. TMDB API verilerini kullanır.
+            © {currentYear} İzleme Listem Platform. TMDB API verilerini kullanır.
           </p>
           <div className="flex gap-2 items-center">
              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
