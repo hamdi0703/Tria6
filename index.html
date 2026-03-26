@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="tr" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#050505" />
+    
+    <!-- CRITICAL: Disable Google Translate to prevent React DOM conflicts -->
+    <meta name="google" content="notranslate" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- SEO & Meta Tags -->
+    <title>Tria | Yapay Zeka Destekli Film ve Dizi Keşif Platformu</title>
+    <meta name="description" content="Ne izleyeceğine karar veremiyor musun? Tria'nın yapay zeka önerileri, CineRoulette oyunu ve detaylı analizleriyle sinema zevkini keşfet. Koleksiyonunu oluştur ve paylaş." />
+    <meta name="keywords" content="film önerileri, dizi önerileri, yapay zeka sinema, film listesi oluşturma, tmdb türkçe, cineroulette, ne izlesem, film veritabanı, tria app" />
+    <meta name="author" content="Tria Platform" />
+    <link rel="canonical" href="https://tria.app/" />
+    
+    <!-- Dynamic SVG Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%234F46E5'/%3E%3Cpath d='M38 32L72 50L38 68V32Z' fill='white'/%3E%3C/svg%3E" />
+
+    <!-- Open Graph / Facebook / WhatsApp -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tria.app/" />
+    <meta property="og:site_name" content="Tria" />
+    <meta property="og:title" content="Tria - Sinemayı Yeniden Keşfet" />
+    <meta property="og:description" content="AI destekli öneriler, Frame Focus oyunu ve kişisel koleksiyonlar. Sinema dünyası parmaklarının ucunda." />
+    <meta property="og:image" content="https://placehold.co/1200x630/050505/4f46e5?text=TRIA+AI+Discovery" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tria - Sinemayı Yeniden Keşfet" />
+    <meta name="twitter:description" content="AI destekli öneriler ve sinematik oyunlarla dolu kişisel evrenin." />
+    <meta name="twitter:image" content="https://placehold.co/1200x630/050505/4f46e5?text=TRIA+AI+Discovery" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            zIndex: {
+              'negative': '-1',
+              'base': '0',
+              'elevated': '10',   // Kartlar, küçük widgetlar
+              'sticky': '40',     // Yapışkan filtreler, alt barlar
+              'header': '50',     // Ana navigasyon
+              'overlay': '60',    // Backdrop, mobil menü arka planı
+              'modal': '70',      // Ana modallar (Profil, Oyun)
+              'popover': '80',    // Dropdownlar, Select menüleri
+              'toast': '100',     // Bildirimler (En üstte olmalı)
+              'max': '9999',      // Kritik hata katmanları
+            },
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              vista: {
+                dark: '#000000',
+                light: '#F5F5F5',
+              }
+            },
+            keyframes: {
+              slideInRight: {
+                '0%': { transform: 'translateX(100%)' },
+                '100%': { transform: 'translateX(0)' },
+              },
+              slideInUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              },
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              toastIn: {
+                '0%': { transform: 'translateY(100%) scale(0.9)', opacity: '0' },
+                '100%': { transform: 'translateY(0) scale(1)', opacity: '1' },
+              },
+              shimmer: {
+                '0%': { backgroundPosition: '-1000px 0' },
+                '100%': { backgroundPosition: '1000px 0' },
+              },
+              marqueeVertical: {
+                '0%': { transform: 'translateY(0)' },
+                '100%': { transform: 'translateY(-50%)' },
+              },
+              marqueeVerticalReverse: {
+                '0%': { transform: 'translateY(-50%)' },
+                '100%': { transform: 'translateY(0)' },
+              },
+              scaleIn: {
+                '0%': { transform: 'scale(0.9)', opacity: '0' },
+                '100%': { transform: 'scale(1)', opacity: '1' },
+              }
+            },
+            animation: {
+              'slide-in-right': 'slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'slide-in-up': 'slideInUp 0.4s ease-out forwards',
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+              'toast-in': 'toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              'shimmer': 'shimmer 2s infinite linear',
+              'marquee-vertical': 'marqueeVertical 60s linear infinite',
+              'marquee-vertical-reverse': 'marqueeVerticalReverse 60s linear infinite',
+              'scale-in': 'scaleIn 0.2s ease-out forwards',
+            }
+          }
+        }
+      }
+    </script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+      body { font-family: 'Poppins', sans-serif; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+      /* --- GAME HUB GLOBAL STYLES --- */
+      .film-strip-border {
+        background-image: radial-gradient(circle, rgba(255,255,255,0.1) 25%, transparent 26%);
+        background-size: 20px 30px;
+        background-position: 0 0;
+        width: 24px;
+      }
+      .lens-overlay {
+        background: linear-gradient(to bottom, 
+          rgba(0,0,0,0.8) 0%, 
+          rgba(0,0,0,0.2) 30%, 
+          rgba(255,255,255,0.05) 45%, 
+          rgba(255,255,255,0.05) 55%, 
+          rgba(0,0,0,0.2) 70%, 
+          rgba(0,0,0,0.8) 100%
+        );
+        border-top: 1px solid rgba(255,255,255,0.1);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+        backdrop-filter: blur(1px);
+      }
+      @keyframes flicker {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      .animate-flicker { animation: flicker 2s infinite; }
+      .roulette-track {
+        will-change: transform;
+        transition-timing-function: cubic-bezier(0.1, 0, 0.1, 1); 
+      }
+      .blur-motion { filter: blur(2px) scale(0.98); }
+      .no-blur {
+        filter: blur(0) scale(1);
+        transition: filter 0.5s ease-out, transform 0.5s ease-out;
+      }
+      .neon-line { box-shadow: 0 0 10px #facc15, 0 0 20px #facc15; }
+
+      @keyframes scanline {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+      }
+      .animate-scanline { animation: scanline 2s linear infinite; }
+      
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+        20%, 40%, 60%, 80% { transform: translateX(4px); }
+      }
+      .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+      
+      .scanline::after {
+        content: " ";
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+        background-size: 100% 4px;
+        z-index: 10;
+        pointer-events: none;
+      }
+      
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 4px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(255,255,255,0.1); border-radius: 3px; }
+      
+      input[type=range] {
+        -webkit-appearance: none;
+        width: 100%;
+        background: transparent;
+      }
+      input[type=range]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        height: 28px;
+        width: 28px;
+        border-radius: 50%;
+        background: #ffffff;
+        cursor: pointer;
+        margin-top: -12px;
+        box-shadow: 0 0 15px rgba(255,255,255,0.5);
+      }
+      input[type=range]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 4px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.2);
+        border-radius: 2px;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client?external=react",
+    "react-dom": "https://esm.sh/react-dom@18.2.0?external=react",
+    "react/": "https://esm.sh/react@18.2.0/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.42.0",
+    "chart.js/auto": "https://esm.sh/chart.js@auto",
+    "react-chartjs-2": "https://esm.sh/react-chartjs-2?external=react,react-dom,chart.js",
+    "chart.js": "https://esm.sh/chart.js@4.4.1",
+    "chart.js/": "https://esm.sh/chart.js@^4.5.1/",
+    "@tanstack/react-query": "https://esm.sh/@tanstack/react-query@5.28.4?external=react,react-dom",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/"
+  }
+}
+</script>
+</head>
+  <body class="bg-vista-light dark:bg-vista-dark transition-colors duration-300 notranslate">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

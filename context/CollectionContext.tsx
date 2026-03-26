@@ -1,0 +1,396 @@
+
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { Collection, Movie } from '../types';
+import { useAuth } from './AuthContext';
+import { supabase } from '../services/supabaseClient';
+import { useToast } from './ToastContext';
+import { TmdbService } from '../services/tmdbService';
+import { collectionService } from '../services/collectionService';
+
+interface CollectionSettings {
+    name: string;
+    description: string;
+    isPublic: boolean;
+}
+
+interface CollectionContextType {
+  collections: Collection[]; // Sadece Metadata
+  activeCollectionId: string;
+  activeCollectionMovies: Movie[]; // Sadece Aktif Listenin Filmleri (Lazy Load)
+  sharedList: Collection | null;
+  
+  setActiveCollectionId: (id: string) => void;
+  createCollection: (name: string) => void;
+  deleteCollection: (id: string) => void;
+  updateCollectionSettings: (id: string, settings: CollectionSettings) => Promise<void>;
+  toggleMovieInCollection: (movie: Movie) => Promise<void>;
+  checkIsSelected: (movieId: number) => boolean;
+  regenerateToken: (collectionId: string) => Promise<void>;
+  loadCollectionByToken: (token: string) => Promise<boolean>;
+  loadCloudList: (listId: string) => Promise<boolean>;
+  loadSharedList: (ids: string[]) => Promise<void>;
+  exitSharedMode: () => void;
+  resetCollections: () => void;
+  updateTopFavorite: (slotIndex: number, movieId: number | null, type: 'movie' | 'tv') => void;
+  isLoadingItems: boolean;
+}
+
+const CollectionContext = createContext<CollectionContextType | undefined>(undefined);
+
+const LAST_ACTIVE_ID_KEY = 'tria_last_active_id';
+
+const generateToken = () => {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+};
+
+export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, loading: authLoading, openAuthModal } = useAuth(); 
+  const { showToast } = useToast();
+  
+  // State Bölümlemesi
+  const [collections, setCollections] = useState<Collection[]>([]); // Sadece Metadata
+  const [activeCollectionId, setActiveCollectionId] = useState<string>('');
+  const [activeCollectionMovies, setActiveCollectionMovies] = useState<Movie[]>([]); // Aktif içerik
+  const [isLoadingItems, setIsLoadingItems] = useState(false);
+
+  const [sharedList, setSharedList] = useState<Collection | null>(null);
+
+  const initLock = useRef<string | null>(null);
+
+  // 1. INIT: Sadece Liste İsimlerini Yükle (Metadata)
+  useEffect(() => {
+      if (authLoading) return;
+
+      const initUserData = async () => {
+          // GUEST MODE
+          if (!user || user.id.startsWith('mock-')) {
+              // Guest verilerini temizle veya yönet (Şu an için boş başlatıyoruz çünkü giriş zorunlu)
+              // Ancak UI tutarlılığı için boş bir liste gösteriyoruz.
+              const defaultList: Collection = { id: 'guest-1', name: 'Favorilerim', movies: [], isPublic: false };
+              setCollections([defaultList]);
+              setActiveCollectionId('guest-1');
+              setActiveCollectionMovies([]);
+              return;
+          }
+
+          if (initLock.current === user.id) return;
+          initLock.current = user.id;
+
+          try {
+              // SADECE METADATA ÇEKİYORUZ (Hızlı)
+              const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+              
+              if (error) throw error;
+
+              if (data && data.length > 0) {
+                  const mapped: Collection[] = data.map((d: any) => ({
+                      id: d.id,
+                      name: d.name,
+                      description: d.description || '',
+                      isPublic: d.is_public || false,
+                      shareToken: d.share_token,
+                      coverImage: d.cover_image,
+                      movies: [], // Boş başlatıyoruz (Lazy Load)
+                      topFavoriteMovies: d.top_favorite_movies,
+                      topFavoriteShows: d.top_favorite_shows,
+                      ownerId: d.user_id
+                  }));
+                  setCollections(mapped);
+                  
+                  // LocalStorage'dan son ID'yi al ama güvenli mi kontrol et (UUID olmalı)
+                  const lastActive = localStorage.getItem(LAST_ACTIVE_ID_KEY);
+                  
+                  // Eğer lastActive "guest-" ile başlıyorsa bunu yoksay ve veritabanından gelen ilk listeyi seç
+                  const isValidId = lastActive && !lastActive.startsWith('guest-');
+                  const activeExists = isValidId ? mapped.find(c => c.id === lastActive) : null;
+                  
+                  const targetId = activeExists ? activeExists.id : mapped[0].id;
+                  setActiveCollectionId(targetId);
+                  // Local storage'ı temizle/güncelle ki hatalı ID kalmasın
+                  localStorage.setItem(LAST_ACTIVE_ID_KEY, targetId);
+
+              } else {
+                  // Hiç liste yoksa oluştur
+                  await createCollection('Favorilerim');
+              }
+          } catch (e) {
+              console.error("Collections load failed:", e);
+          }
+      };
+
+      initUserData();
+  }, [user, authLoading]);
+
+  // 2. ACTIVE LIST CHANGE: İçeriği Yükle (Lazy Load)
+  useEffect(() => {
+      if (!user || user.id.startsWith('mock-')) {
+          // Guest modda content zaten collections içinde
+          const active = collections.find(c => c.id === activeCollectionId);
+          if (active) setActiveCollectionMovies(active.movies);
+          return;
+      }
+
+      const fetchItems = async () => {
+          if (!activeCollectionId) return;
+          
+          // GÜVENLİK KONTROLÜ: Eğer ID 'guest-' ile başlıyorsa DB sorgusu atma
+          if (activeCollectionId.startsWith('guest-')) return;
+
+          setIsLoadingItems(true);
+          try {
+              const movies = await collectionService.getCollectionItems(activeCollectionId);
+              setActiveCollectionMovies(movies);
+              
+              // Local state'i de güncelle (senkronizasyon için)
+              setCollections(prev => prev.map(c => c.id === activeCollectionId ? { ...c, movies } : c));
+          } catch (e) {
+              console.error("Failed to load list items:", e);
+          } finally {
+              setIsLoadingItems(false);
+          }
+      };
+
+      fetchItems();
+      if (!activeCollectionId.startsWith('guest-')) {
+          localStorage.setItem(LAST_ACTIVE_ID_KEY, activeCollectionId);
+      }
+  }, [activeCollectionId, user]);
+
+
+  const createCollection = async (name: string) => {
+      const newCol: Collection = {
+          id: '', 
+          name,
+          movies: [],
+          isPublic: false,
+          topFavoriteMovies: [null, null, null, null, null],
+          topFavoriteShows: [null, null, null, null, null],
+          ownerId: user?.id
+      };
+
+      if (user && !user.id.startsWith('mock-')) {
+          try {
+              const { data, error } = await collectionService.createCollection({
+                  user_id: user.id,
+                  name: newCol.name,
+                  is_public: false
+              });
+              if (error) throw error;
+              newCol.id = data.id;
+          } catch (e) { console.error(e); showToast('Hata oluştu', 'error'); return; }
+      } else {
+          newCol.id = `guest-${Date.now()}`;
+      }
+
+      setCollections(prev => [...prev, newCol]);
+      setActiveCollectionId(newCol.id);
+      showToast('Liste oluşturuldu', 'success');
+  };
+
+  const deleteCollection = async (id: string) => {
+      if (collections.length <= 1) {
+          showToast('En az bir listeniz olmalı.', 'error');
+          return;
+      }
+      setCollections(prev => {
+          const filtered = prev.filter(c => c.id !== id);
+          if (activeCollectionId === id && filtered.length > 0) setActiveCollectionId(filtered[0].id);
+          return filtered;
+      });
+      if (user && !user.id.startsWith('mock-')) await collectionService.deleteCollection(id);
+      showToast('Liste silindi', 'info');
+  };
+
+  const updateCollectionSettings = async (id: string, settings: CollectionSettings) => {
+      setCollections(prev => prev.map(c => c.id === id ? { ...c, ...settings } : c));
+      if (user && !user.id.startsWith('mock-')) {
+          await collectionService.updateCollectionSettings(id, settings);
+      }
+      showToast('Ayarlar kaydedildi', 'success');
+  };
+
+  // KRİTİK: Ekle/Çıkar İşlemi (Auth Guard Güncellendi)
+  const toggleMovieInCollection = async (movie: Movie) => {
+      // 1. Auth Guard: Giriş yapılmamışsa engelle
+      if (!user || user.id.startsWith('guest-') || user.id.startsWith('mock-')) {
+          showToast('Koleksiyon listesine sadece giriş yapan kullanıcılar ekleme yapabilir.', 'info');
+          return;
+      }
+
+      if (!activeCollectionId) return;
+
+      const exists = activeCollectionMovies.some(m => m.id === movie.id);
+      const timestamp = new Date().toISOString();
+
+      // 2. Optimistic UI Update
+      let newMovies = [...activeCollectionMovies];
+      if (exists) {
+          newMovies = newMovies.filter(m => m.id !== movie.id);
+          showToast('Listeden çıkarıldı', 'info');
+      } else {
+          newMovies = [{ ...movie, addedAt: timestamp }, ...newMovies];
+          showToast('Listeye eklendi', 'success');
+      }
+      setActiveCollectionMovies(newMovies);
+      
+      // Update metadata collection array reference too (for consistency)
+      setCollections(prev => prev.map(c => c.id === activeCollectionId ? { ...c, movies: newMovies } : c));
+
+      // 3. Background DB Update
+      if (user && !user.id.startsWith('mock-')) {
+          try {
+              if (exists) {
+                  await collectionService.removeMovieFromCollection(activeCollectionId, movie.id);
+                  // Remove from favorites if exists
+                  const col = collections.find(c => c.id === activeCollectionId);
+                  if (col && (col.topFavoriteMovies?.includes(movie.id) || col.topFavoriteShows?.includes(movie.id))) {
+                      const newFavsM = col.topFavoriteMovies?.map(id => id === movie.id ? null : id) || [];
+                      const newFavsS = col.topFavoriteShows?.map(id => id === movie.id ? null : id) || [];
+                      updateTopFavoritesLocal(activeCollectionId, newFavsM, newFavsS); // Helper to update local
+                      await collectionService.updateTopFavorites(activeCollectionId, newFavsM, newFavsS);
+                  }
+              } else {
+                  // Filmi ekle (Detay eksikse tamamla)
+                  let movieToSave = movie;
+                  if (!movie.credits || !movie.production_countries) {
+                      const tmdb = new TmdbService();
+                      const type = (movie.first_air_date || movie.name) ? 'tv' : 'movie';
+                      movieToSave = await tmdb.getMovieDetail(movie.id, type);
+                      // Update local with detailed version
+                      setActiveCollectionMovies(prev => prev.map(m => m.id === movie.id ? { ...movieToSave, addedAt: timestamp } : m));
+                  }
+                  await collectionService.addMovieToCollection(activeCollectionId, movieToSave);
+              }
+          } catch (e) {
+              console.error("DB Sync failed:", e);
+              // Revert optimistic update here if needed (not implemented for simplicity)
+          }
+      }
+  };
+
+  // Helper for internal use
+  const updateTopFavoritesLocal = (colId: string, moviesFavs: any[], showsFavs: any[]) => {
+      setCollections(prev => prev.map(c => c.id === colId ? { 
+          ...c, 
+          topFavoriteMovies: moviesFavs, 
+          topFavoriteShows: showsFavs 
+      } : c));
+  };
+
+  const updateTopFavorite = async (slotIndex: number, movieId: number | null, type: 'movie' | 'tv') => {
+      const col = collections.find(c => c.id === activeCollectionId);
+      if (!col) return;
+
+      const newM = [...(col.topFavoriteMovies || [null,null,null,null,null])];
+      const newS = [...(col.topFavoriteShows || [null,null,null,null,null])];
+
+      if (type === 'movie') newM[slotIndex] = movieId;
+      else newS[slotIndex] = movieId;
+
+      updateTopFavoritesLocal(activeCollectionId, newM, newS);
+
+      if (user && !user.id.startsWith('mock-')) {
+          await collectionService.updateTopFavorites(activeCollectionId, newM, newS);
+      }
+  };
+
+  const checkIsSelected = (movieId: number) => {
+      if (sharedList) return sharedList.movies.some(m => m.id === movieId);
+      return activeCollectionMovies.some(m => m.id === movieId);
+  };
+
+  const loadCollectionByToken = async (token: string) => {
+      const { data, error } = await collectionService.getCollectionByToken(token);
+      if (error || !data) return false;
+      setSharedList(data);
+      return true;
+  };
+
+  const loadCloudList = async (id: string) => {
+      const { data, error } = await collectionService.getCollectionById(id);
+      if (error || !data) return false;
+      setSharedList(data);
+      return true;
+  };
+
+  const loadSharedList = async (ids: string[]) => {
+      const tmdb = new TmdbService();
+      
+      const fetchItem = async (idStr: string) => {
+          const id = parseInt(idStr);
+          if (isNaN(id)) return null;
+          try {
+              return await tmdb.getMovieDetail(id, 'movie');
+          } catch {
+              try {
+                  return await tmdb.getMovieDetail(id, 'tv');
+              } catch {
+                  return null;
+              }
+          }
+      };
+
+      try {
+        const results = await Promise.all(ids.map(id => fetchItem(id)));
+        const movies = results.filter((m): m is Movie => m !== null);
+        
+        if (movies.length > 0) {
+            setSharedList({
+                id: 'legacy-shared',
+                name: 'Paylaşılan Seçki',
+                description: 'Bağlantı ile paylaşılan içerikler.',
+                isPublic: true,
+                movies: movies
+            });
+        }
+      } catch (e) {
+          console.error("Shared list load failed", e);
+      }
+  };
+
+  const regenerateToken = async (id: string) => {
+      const token = generateToken();
+      setCollections(prev => prev.map(c => c.id === id ? { ...c, shareToken: token } : c));
+      if (user && !user.id.startsWith('mock-')) await collectionService.updateCollectionSettings(id, { shareToken: token });
+      showToast('Token yenilendi', 'success');
+  };
+
+  const exitSharedMode = () => { setSharedList(null); };
+  
+  // FIX: Reset işlemi sırasında 404 hatasını önlemek için ana sayfaya yönlendiriyoruz.
+  const resetCollections = () => { 
+      localStorage.clear(); 
+      window.location.href = '/'; 
+  };
+
+  return (
+    <CollectionContext.Provider value={{ 
+        collections, 
+        activeCollectionId,
+        activeCollectionMovies, // Exposed
+        sharedList, 
+        setActiveCollectionId, 
+        createCollection, 
+        deleteCollection,
+        updateCollectionSettings,
+        toggleMovieInCollection, 
+        checkIsSelected, 
+        regenerateToken,
+        loadCollectionByToken,
+        loadCloudList,
+        loadSharedList,
+        exitSharedMode,
+        resetCollections,
+        updateTopFavorite,
+        isLoadingItems
+    }}>
+      {children}
+    </CollectionContext.Provider>
+  );
+};
+
+export const useCollectionContext = () => {
+  const context = useContext(CollectionContext);
+  if (!context) throw new Error('useCollectionContext missing');
+  return context;
+};
