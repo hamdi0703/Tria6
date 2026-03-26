@@ -191,12 +191,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (error) throw error;
         
-        if (data.user) {
-            setUser(data.user);
-            ensureProfileExistsBackground(data.user);
+        if (data.session) {
+            if (data.user) {
+                setUser(data.user);
+                ensureProfileExistsBackground(data.user);
+            }
+            showToast('Kayıt başarılı! Oturum açıldı.', 'success');
+        } else {
+            // Eğer session yoksa, email doğrulaması gerekiyordur
+            showToast('Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama bağlantısına tıklayarak hesabınızı onaylayın.', 'info');
         }
-        
-        showToast('Kayıt başarılı! Oturum açıldı.', 'success');
     } catch (error: any) {
         if (error.message === 'Failed to fetch') {
             throw new Error("Bağlantı hatası. Sunucuya erişilemiyor.");

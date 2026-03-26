@@ -75,7 +75,18 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
 
   // FIX: Güvenli Önbellek Temizleme
   const handleResetApp = () => {
-      localStorage.clear();
+      // Clear localStorage safely (preserve auth and user)
+      const keysToKeep = ['tria_mock_user'];
+      const keysToRemove = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && !keysToKeep.includes(key) && !key.startsWith('sb-')) {
+              keysToRemove.push(key);
+          }
+      }
+
+      keysToRemove.forEach(key => localStorage.removeItem(key));
       window.location.href = '/';
   };
 

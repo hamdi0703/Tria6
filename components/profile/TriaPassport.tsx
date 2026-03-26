@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { SubscriptionTier } from '../../types';
+import { getAvatarPersona, AVATAR_PERSONAS } from '../../utils/avatarUtils';
 
 interface TriaPassportProps {
   username: string;
@@ -37,10 +38,27 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
 
   const style = getTierStyle();
 
+  const persona = useMemo(() => {
+    let personaId = '1';
+    if (avatarUrl) {
+        const match = avatarUrl.match(/seed=([^&]+)/);
+        if (match) {
+            const seed = match[1];
+            const found = AVATAR_PERSONAS.find(p => p.seed === seed);
+            if (found) {
+                personaId = found.id;
+            }
+        }
+    }
+    return getAvatarPersona(personaId);
+  }, [avatarUrl]);
+
   return (
     <div className={`relative w-full max-w-[380px] mx-auto aspect-[1/1.55] bg-[#050505] rounded-[24px] overflow-hidden shadow-2xl ring-1 ring-white/10 font-sans group select-none transition-transform duration-500 hover:scale-[1.01] ${tier === 'PRO' || tier === 'ADMIN' ? style.glow : ''}`}>
       
       {/* 1. ATMOSPHERE & BACKGROUND */}
+      {/* Persona specific gradient background */}
+      <div className="absolute inset-0 opacity-20 bg-gradient-to-br" style={{ backgroundImage: `linear-gradient(135deg, ${persona.bgStart}, ${persona.bgEnd})` }}></div>
       {/* Subtle top spotlight */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-white/5 blur-[60px] rounded-full pointer-events-none"></div>
       {/* Noise Texture for premium feel */}
