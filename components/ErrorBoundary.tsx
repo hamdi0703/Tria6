@@ -35,8 +35,19 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   };
 
   handleHardReload = () => {
-      // Önbellek temizleyip tam yenileme
+      // Önbellek temizleyip tam yenileme (oturumu koruyarak)
       window.sessionStorage.clear();
+      const keysToKeep = ['tria_mock_user'];
+      const keysToRemove = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && !keysToKeep.includes(key) && !key.startsWith('sb-')) {
+              keysToRemove.push(key);
+          }
+      }
+
+      keysToRemove.forEach(key => localStorage.removeItem(key));
       window.location.reload();
   };
 

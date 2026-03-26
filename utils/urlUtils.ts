@@ -1,6 +1,6 @@
 
 // Prodüksiyon URL'i (Canlı Site - Zorunlu)
-export const PRODUCTION_URL = 'https://tria-2-0.vercel.app';
+export const PRODUCTION_URL = 'https://izlemelistem.vercel.app';
 
 /**
  * Paylaşım bağlantılarını oluştururken kullanılacak kök adresi belirler.
@@ -22,7 +22,7 @@ const getBaseUrl = (): string => {
 
 /**
  * Koleksiyon paylaşım linki oluşturur.
- * Örnek: https://tria-2-0.vercel.app/?collection=xyz123
+ * Örnek: https://izlemelistem.vercel.app/?collection=xyz123
  */
 export const getCollectionShareUrl = (token: string): string => {
     if (!token) return '';
@@ -32,7 +32,7 @@ export const getCollectionShareUrl = (token: string): string => {
 
 /**
  * Profil paylaşım linki oluşturur.
- * Örnek: https://tria-2-0.vercel.app/?u=username
+ * Örnek: https://izlemelistem.vercel.app/?u=username
  */
 export const getProfileShareUrl = (username: string): string => {
     if (!username) return '';

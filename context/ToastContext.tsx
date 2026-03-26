@@ -37,7 +37,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       {children}
       
       {/* Toast Container - z-toast added */}
-      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-toast flex flex-col gap-3 pointer-events-none">
+      <div className="fixed bottom-20 md:bottom-8 right-4 md:right-8 z-[10000] flex flex-col gap-3 pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
