@@ -34,7 +34,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const MOCK_ADMIN_USER: User = {
   id: 'mock-admin-id-12345',
-  email: 'admin@tria.app',
+  email: 'admin@izlemelistem.vercel.app',
   created_at: new Date().toISOString(),
   user_metadata: { username: 'Admin', avatar_url: '' },
   is_blocked: false
@@ -200,6 +200,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
             // Eğer session yoksa, email doğrulaması gerekiyordur
             showToast('Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama bağlantısına tıklayarak hesabınızı onaylayın.', 'info');
+            throw new Error('Email verification required');
         }
     } catch (error: any) {
         if (error.message === 'Failed to fetch') {

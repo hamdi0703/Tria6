@@ -47,8 +47,16 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         await signIn(email, password);
         onClose();
       } else if (view === 'REGISTER') {
-        await signUp(email, password, username);
-        setView('LOGIN'); 
+        try {
+          await signUp(email, password, username);
+          setView('LOGIN');
+        } catch(err) {
+          if (err.message === 'Email verification required') {
+             setView('LOGIN'); // Still switch to login so they can verify and login later
+             return;
+          }
+          throw err;
+        }
       } else if (view === 'FORGOT_PASSWORD') {
         await resetPassword(email);
         setResetSent(true); // Başarılı ekrana geç

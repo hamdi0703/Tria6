@@ -28,11 +28,7 @@ export const reviewService = {
                 downvotes,
                 upvoted_by,
                 downvoted_by,
-                user_id,
-                profiles:user_id (
-                    username,
-                    avatar_url
-                )
+                user_id
             `, { count: 'exact' })
             .eq('movie_id', movieId)
             .order('created_at', { ascending: false })
@@ -41,6 +37,24 @@ export const reviewService = {
         if (error) {
             console.error("Review fetch error:", error);
             return { data: [], count: 0, hasMore: false };
+        }
+
+        // 1.5 Profilleri Ayrı Bir Sorguyla Çek (PGRST200 Hatasını Önlemek İçin)
+        const userIds = [...new Set(reviewsData.map((r: any) => r.user_id))].filter(Boolean);
+        let profilesMap: Record<string, any> = {};
+
+        if (userIds.length > 0) {
+            const { data: profilesData, error: profilesError } = await supabase
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            if (!profilesError && profilesData) {
+                profilesMap = profilesData.reduce((acc: any, profile: any) => {
+                    acc[profile.id] = profile;
+                    return acc;
+                }, {});
+            }
         }
 
         // 2. Mevcut kullanıcı ID'sini al
@@ -79,8 +93,8 @@ export const reviewService = {
                 upvoted_by: r.upvoted_by || [],
                 downvoted_by: r.downvoted_by || [],
                 user_id: r.user_id,
-                username: r.profiles?.username || 'Anonim',
-                avatar_url: r.profiles?.avatar_url || '1',
+                username: profilesMap[r.user_id]?.username || 'Anonim',
+                avatar_url: profilesMap[r.user_id]?.avatar_url || '1',
                 currentUserVote: voteStatus
             };
         });
@@ -96,47 +110,56 @@ export const reviewService = {
 
         const { data, error } = await supabase
             .from('reviews')
-            .select(`
-                *,
-                profiles:user_id (username, avatar_url)
-            `)
+            .select('*')
             .eq('movie_id', movieId)
             .eq('user_id', userId)
             .maybeSingle();
 
         if (error) return null;
         if (!data) return null;
+        const reviewData = data as any;
+
+        let userProfile = { username: 'Kullanıcı', avatar_url: '1' };
+        const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', userId)
+            .maybeSingle();
+
+        if (!profileError && profileData) {
+            userProfile = profileData;
+        }
 
         // Backward Compatibility
-        let resolvedTags: PostCategory[] = data.tags || [];
-        if (resolvedTags.length === 0 && data.category) {
-            resolvedTags = [data.category as PostCategory];
+        let resolvedTags: PostCategory[] = reviewData.tags || [];
+        if (resolvedTags.length === 0 && reviewData.category) {
+            resolvedTags = [reviewData.category as PostCategory];
         }
         if (resolvedTags.length === 0) resolvedTags = ['REVIEW'];
 
         // Kendi yorumuna oy veremez mantığı olsa da yapıyı koruyoruz
         let voteStatus: 'UP' | 'DOWN' | null = null;
-        if (data.upvoted_by && data.upvoted_by.includes(userId)) voteStatus = 'UP';
-        else if (data.downvoted_by && data.downvoted_by.includes(userId)) voteStatus = 'DOWN';
+        if (reviewData.upvoted_by && reviewData.upvoted_by.includes(userId)) voteStatus = 'UP';
+        else if (reviewData.downvoted_by && reviewData.downvoted_by.includes(userId)) voteStatus = 'DOWN';
 
         return {
-            id: data.id,
-            movieId: data.movie_id,
-            rating: data.rating,
-            comment: data.comment,
-            hasSpoiler: data.has_spoiler,
-            category: data.category || 'REVIEW',
+            id: reviewData.id,
+            movieId: reviewData.movie_id,
+            rating: reviewData.rating,
+            comment: reviewData.comment,
+            hasSpoiler: reviewData.has_spoiler,
+            category: reviewData.category || 'REVIEW',
             tags: resolvedTags,
-            sceneTime: data.scene_time,
-            character: data.character,
-            createdAt: data.created_at,
-            upvotes: data.upvotes || 0,
-            downvotes: data.downvotes || 0,
-            upvoted_by: data.upvoted_by || [],
-            downvoted_by: data.downvoted_by || [],
-            user_id: data.user_id,
-            username: data.profiles?.username || 'Kullanıcı',
-            avatar_url: data.profiles?.avatar_url || '1',
+            sceneTime: reviewData.scene_time,
+            character: reviewData.character,
+            createdAt: reviewData.created_at,
+            upvotes: reviewData.upvotes || 0,
+            downvotes: reviewData.downvotes || 0,
+            upvoted_by: reviewData.upvoted_by || [],
+            downvoted_by: reviewData.downvoted_by || [],
+            user_id: reviewData.user_id,
+            username: userProfile.username || 'Kullanıcı',
+            avatar_url: userProfile.avatar_url || '1',
             currentUserVote: voteStatus
         } as UserReview;
     },
@@ -219,7 +242,7 @@ export const reviewService = {
             type: 'report', 
             subject: `[ŞİKAYET] ${movieTitle} - ${reason}`,
             message: `KATEGORİ: ${reason}\n\nDETAY:\n${additionalDetails || '-'}\n\nİÇERİK:\n"${reviewContent}"`,
-            contact_email: 'system-report@tria.app',
+            contact_email: 'system-report@izlemelistem.vercel.app',
             status: 'pending',
             device_info: { target: 'review', review_id: reviewId, reported_user: reviewOwnerId }
         };

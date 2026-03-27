@@ -40,25 +40,48 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
 
   const persona = useMemo(() => {
     let personaId = '1';
-    if (avatarUrl) {
-        const match = avatarUrl.match(/seed=([^&]+)/);
-        if (match) {
-            const seed = match[1];
+
+    // Eğer avatarUrl Dicebear URL'i ise seed'i çıkar
+    if (avatarUrl && avatarUrl.includes('api.dicebear.com')) {
+        const urlParams = new URLSearchParams(avatarUrl.split('?')[1]);
+        const seed = urlParams.get('seed');
+        if (seed) {
             const found = AVATAR_PERSONAS.find(p => p.seed === seed);
             if (found) {
                 personaId = found.id;
             }
         }
     }
+    // Değilse (ya da seed bulunamadıysa) ID tabanlı bir eşleşme veya hash deneyebiliriz
+    // Güvenlik için fallback yapıyoruz.
     return getAvatarPersona(personaId);
   }, [avatarUrl]);
+
+  // Gradient Generator for custom avatar seeds / users
+  const gradientStyle = useMemo(() => {
+      // Eğer dicebear URL ise ve persona varsa persona bg'sini kullan
+      if (persona && avatarUrl && avatarUrl.includes('api.dicebear.com') && AVATAR_PERSONAS.some(p => p.seed === new URLSearchParams(avatarUrl.split('?')[1]).get('seed'))) {
+          return `linear-gradient(135deg, ${persona.bgStart}, ${persona.bgEnd})`;
+      }
+
+      // Aksi halde kullanıcı adından benzersiz bir gradient üret
+      let hash = 0;
+      for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+      }
+
+      const c1 = `hsl(${Math.abs(hash % 360)}, 70%, 60%)`;
+      const c2 = `hsl(${Math.abs((hash * 2) % 360)}, 70%, 40%)`;
+
+      return `linear-gradient(135deg, ${c1}, ${c2})`;
+  }, [persona, username, avatarUrl]);
 
   return (
     <div className={`relative w-full max-w-[380px] mx-auto aspect-[1/1.55] bg-[#050505] rounded-[24px] overflow-hidden shadow-2xl ring-1 ring-white/10 font-sans group select-none transition-transform duration-500 hover:scale-[1.01] ${tier === 'PRO' || tier === 'ADMIN' ? style.glow : ''}`}>
       
       {/* 1. ATMOSPHERE & BACKGROUND */}
       {/* Persona specific gradient background */}
-      <div className="absolute inset-0 opacity-20 bg-gradient-to-br" style={{ backgroundImage: `linear-gradient(135deg, ${persona.bgStart}, ${persona.bgEnd})` }}></div>
+      <div className="absolute inset-0 opacity-20 bg-gradient-to-br" style={{ backgroundImage: gradientStyle }}></div>
       {/* Subtle top spotlight */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-white/5 blur-[60px] rounded-full pointer-events-none"></div>
       {/* Noise Texture for premium feel */}
@@ -72,7 +95,10 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
         <div className="flex flex-col items-center text-center mb-8">
             {/* Avatar with Glowing Border */}
             <div className="relative mb-4">
-                <div className={`w-24 h-24 rounded-full p-[3px] bg-gradient-to-tr from-neutral-800 via-neutral-600 to-neutral-800 shadow-xl ${tier === 'PRO' ? 'shadow-indigo-500/20' : ''}`}>
+                <div
+                    className={`w-24 h-24 rounded-full p-[3px] shadow-xl ${tier === 'PRO' ? 'shadow-indigo-500/20' : ''}`}
+                    style={{ backgroundImage: gradientStyle }}
+                >
                     <img 
                         src={avatarUrl} 
                         alt={username} 

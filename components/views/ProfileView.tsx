@@ -76,7 +76,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
   // FIX: Güvenli Önbellek Temizleme
   const handleResetApp = () => {
       // Clear localStorage safely (preserve auth and user)
-      const keysToKeep = ['tria_mock_user'];
+      const keysToKeep = ['tria_mock_user', 'supabase.auth.token']; // Preserve auth tokens
       const keysToRemove = [];
 
       for (let i = 0; i < localStorage.length; i++) {

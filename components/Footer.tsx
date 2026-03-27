@@ -90,7 +90,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   <a href="#" className="hover:text-indigo-600 dark:hover:text-white transition-colors">Kullanım Şartları</a>
               </li>
               <li>
-                  <a href="mailto:hello@tria.app" className="hover:text-indigo-600 dark:hover:text-white transition-colors">hello@tria.app</a>
+                  <a href="mailto:hello@izlemelistem.vercel.app" className="hover:text-indigo-600 dark:hover:text-white transition-colors">hello@izlemelistem.vercel.app</a>
               </li>
             </ul>
             

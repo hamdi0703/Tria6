@@ -37,7 +37,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   handleHardReload = () => {
       // Önbellek temizleyip tam yenileme (oturumu koruyarak)
       window.sessionStorage.clear();
-      const keysToKeep = ['tria_mock_user'];
+      const keysToKeep = ['tria_mock_user', 'supabase.auth.token']; // Preserve auth tokens
       const keysToRemove = [];
 
       for (let i = 0; i < localStorage.length; i++) {
