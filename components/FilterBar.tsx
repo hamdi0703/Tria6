@@ -44,7 +44,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   // --- OPTIONS ---
   const genreOptions = [
       { label: 'Tüm Türler', value: null },
-      ...genres.map(g => ({ label: g.name, value: g.id }))
+      ...(genres || []).map(g => ({ label: g.name, value: g.id }))
   ];
 
   const yearOptions = [

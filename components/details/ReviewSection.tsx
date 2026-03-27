@@ -164,6 +164,7 @@ const ReviewCard: React.FC<{
     toggleSpoiler: (id: string) => void;
 }> = ({ review, highlighted, currentUserId, onEdit, onDelete, onReport, onVote, revealedSpoilers, toggleSpoiler }) => {
     const isMe = currentUserId === review.user_id;
+    const [isExpanded, setIsExpanded] = useState(false);
     const isRevealed = revealedSpoilers.has(review.id || 'unknown');
     
     // Normalize Tags
@@ -177,10 +178,10 @@ const ReviewCard: React.FC<{
     const voteStatus = review.currentUserVote; // 'UP', 'DOWN', or null
 
     return (
-        <div className={`group relative p-6 rounded-3xl border transition-all duration-300 ${highlighted ? 'bg-gradient-to-br from-indigo-900/10 to-purple-900/10 border-indigo-500/30' : 'bg-white dark:bg-[#0a0a0a] border-neutral-100 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700'}`}>
+        <div className={`group relative p-6 rounded-[2rem] border transition-all duration-300 backdrop-blur-sm ${highlighted ? 'bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 border-indigo-500/30 shadow-lg shadow-indigo-500/5' : 'bg-white/80 dark:bg-neutral-900/40 border-neutral-200/60 dark:border-neutral-800/60 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-white dark:hover:bg-neutral-900/80 shadow-sm hover:shadow-md'}`}>
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-neutral-200 dark:bg-neutral-800 p-0.5">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700 p-[2px] shadow-sm">
                         <img src={getAvatarUrl(review.avatar_url)} alt={review.username} className="w-full h-full rounded-full object-cover" />
                     </div>
                     <div>
@@ -233,17 +234,32 @@ const ReviewCard: React.FC<{
 
             {/* COMMENT CONTENT */}
             {review.hasSpoiler && !isRevealed && !isMe ? (
-                <button onClick={() => toggleSpoiler(review.id || 'unknown')} className="w-full py-8 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 group/spoiler">
-                    <span className="text-sm font-bold text-red-500 flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                        Spoiler İçeriyor
-                    </span>
-                    <span className="text-xs text-neutral-500 group-hover/spoiler:underline">Görüntülemek için tıkla</span>
-                </button>
+                <div className="relative overflow-hidden rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-100 dark:bg-neutral-900 group/spoiler cursor-pointer" onClick={() => toggleSpoiler(review.id || 'unknown')}>
+                    <div className="absolute inset-0 backdrop-blur-md bg-white/60 dark:bg-black/60 z-10 flex flex-col items-center justify-center transition-all duration-300 group-hover/spoiler:backdrop-blur-sm group-hover/spoiler:bg-white/40 dark:group-hover/spoiler:bg-black/40">
+                        <span className="text-sm font-black text-red-500 tracking-widest uppercase flex items-center gap-2 drop-shadow-md">
+                            <svg className="w-5 h-5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" /></svg>
+                            Spoiler İçeriyor
+                        </span>
+                        <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-bold mt-2 opacity-0 group-hover/spoiler:opacity-100 transition-opacity translate-y-2 group-hover/spoiler:translate-y-0 duration-300">Görüntülemek için tıkla</span>
+                    </div>
+                    {/* Blurred hint of content behind */}
+                    <p className="text-sm leading-relaxed text-neutral-400 dark:text-neutral-600 whitespace-pre-wrap font-medium p-4 blur-sm opacity-50 select-none">
+                        {review.comment}
+                    </p>
+                </div>
             ) : (
-                <p className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap font-medium">
-                    {review.comment}
-                </p>
+                <div className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap font-medium">
+                    {review.comment && review.comment.length > 100 && !isExpanded ? (
+                        <>
+                            {review.comment.substring(0, 100)}...
+                            <button onClick={() => setIsExpanded(true)} className="ml-2 text-indigo-500 hover:text-indigo-600 font-bold text-xs uppercase tracking-wide">
+                                Devamını Oku
+                            </button>
+                        </>
+                    ) : (
+                        review.comment
+                    )}
+                </div>
             )}
 
             {/* ACTIONS FOOTER (LIKE / DISLIKE) */}
@@ -256,7 +272,7 @@ const ReviewCard: React.FC<{
                         : 'text-neutral-500 hover:text-indigo-600 dark:hover:text-indigo-400'
                     }`}
                 >
-                    <svg className={`w-4 h-4 ${voteStatus === 'UP' ? 'fill-current' : 'stroke-current fill-none'}`} viewBox="0 0 24 24" strokeWidth={2}>
+                    <svg className={`w-5 h-5 transition-transform duration-300 ${voteStatus === 'UP' ? 'fill-current scale-110 -translate-y-0.5' : 'stroke-current fill-none hover:-translate-y-0.5'}`} viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
                     </svg>
                     {review.upvotes > 0 && <span>{review.upvotes}</span>}
@@ -270,7 +286,7 @@ const ReviewCard: React.FC<{
                         : 'text-neutral-500 hover:text-red-600 dark:hover:text-red-400'
                     }`}
                 >
-                    <svg className={`w-4 h-4 ${voteStatus === 'DOWN' ? 'fill-current' : 'stroke-current fill-none'}`} viewBox="0 0 24 24" strokeWidth={2}>
+                    <svg className={`w-5 h-5 transition-transform duration-300 ${voteStatus === 'DOWN' ? 'fill-current scale-110 translate-y-0.5' : 'stroke-current fill-none hover:translate-y-0.5'}`} viewBox="0 0 24 24" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.095c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5" />
                     </svg>
                     {review.downvotes > 0 && <span>{review.downvotes}</span>}
@@ -602,7 +618,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                                     className="w-full bg-neutral-50 dark:bg-neutral-900/50 p-3 rounded-xl text-sm text-neutral-900 dark:text-white border border-transparent focus:border-indigo-500/50 outline-none transition-colors appearance-none"
                                 >
                                     <option value="">Seçiniz...</option>
-                                    {cast && cast.slice(0, 20).map(c => (
+                                    {cast && Array.isArray(cast) && cast.slice(0, 20).map(c => (
                                         <option key={c.id} value={c.name}>{c.name} ({c.character})</option>
                                     ))}
                                 </select>
@@ -610,14 +626,27 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                         </div>
 
                         <div className="relative mb-6">
+                            {rating === 0 && (
+                                <div className="absolute inset-0 bg-neutral-50/80 dark:bg-neutral-900/80 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center rounded-xl border border-dashed border-neutral-300 dark:border-neutral-700">
+                                    <span className="text-sm font-bold text-neutral-500 flex items-center gap-2">
+                                        <svg className="w-5 h-5 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                                        Yorum yazmadan önce lütfen bir puan verin
+                                    </span>
+                                </div>
+                            )}
                             <textarea
                                 value={content}
-                                onChange={e => setContent(e.target.value)}
+                                onChange={e => {
+                                    if (e.target.value.length <= 1000) {
+                                        setContent(e.target.value);
+                                    }
+                                }}
+                                disabled={rating === 0}
                                 placeholder={`"${movieTitle}" hakkında düşüncelerin neler?`}
-                                className="w-full min-h-[160px] bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl text-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none resize-none leading-relaxed font-medium border border-transparent focus:border-indigo-500/50 focus:bg-white dark:focus:bg-neutral-900 transition-colors"
+                                className={`w-full min-h-[160px] bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl text-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none resize-none leading-relaxed font-medium border focus:bg-white dark:focus:bg-neutral-900 transition-colors ${rating === 0 ? 'border-transparent opacity-50 cursor-not-allowed' : 'border-transparent focus:border-indigo-500/50'}`}
                             />
-                            <div className="absolute bottom-2 right-2 text-[10px] font-bold text-neutral-400">
-                                {content.length}
+                            <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md transition-colors ${content.length >= 950 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'}`}>
+                                {content.length} / 1000
                             </div>
                         </div>
 
