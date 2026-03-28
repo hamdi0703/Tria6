@@ -9,10 +9,12 @@ import { useGlobalReviews, useOwnerReview, useReviewMutations } from '../../hook
 import { REVIEW_TAGS, getTagConfig } from '../../constants/reviewTags';
 import { reviewService } from '../../services/reviewService';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { Cast } from '../../types';
 
 interface ReviewSectionProps {
   movieId: number;
   movieTitle: string;
+  cast?: Cast[];
 }
 
 // --- SUB-COMPONENTS ---
@@ -218,6 +220,24 @@ const ReviewCard: React.FC<{
                 </div>
             </div>
 
+            {/* EXTRA META (Character & Time) */}
+            {(review.character || review.watchTime) && (!review.hasSpoiler || isRevealed || isMe) && (
+                <div className="flex flex-wrap gap-3 mb-4">
+                    {review.character && (
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/10 px-2.5 py-1 rounded-lg border border-amber-100 dark:border-amber-900/30">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                            Karakter: {review.character}
+                        </div>
+                    )}
+                    {review.watchTime && (
+                        <div className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10 px-2.5 py-1 rounded-lg border border-blue-100 dark:border-blue-900/30">
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            Zaman/Bölüm: {review.watchTime}
+                        </div>
+                    )}
+                </div>
+            )}
+
             {/* COMMENT CONTENT */}
             {review.hasSpoiler && !isRevealed && !isMe ? (
                 <button onClick={() => toggleSpoiler(review.id || 'unknown')} className="w-full py-8 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-dashed border-neutral-300 dark:border-neutral-700 flex flex-col items-center justify-center gap-2 group/spoiler">
@@ -267,7 +287,7 @@ const ReviewCard: React.FC<{
     );
 };
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) => {
+const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast = [] }) => {
   const { user, openAuthModal } = useAuth();
   const { showToast } = useToast();
   const { sharedList } = useCollectionContext();
@@ -288,8 +308,25 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
   const [hasSpoiler, setHasSpoiler] = useState(false);
+  const [characterInput, setCharacterInput] = useState('');
+  const [watchTimeInput, setWatchTimeInput] = useState('');
   const [revealedSpoilers, setRevealedSpoilers] = useState<Set<string>>(new Set());
   
+  // Character Dropdown State
+  const [showCharacterDropdown, setShowCharacterDropdown] = useState(false);
+  const characterInputRef = useRef<HTMLDivElement>(null);
+  useClickOutside(characterInputRef, () => setShowCharacterDropdown(false));
+
+  // Editor Ref for Scrolling
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Focus Editor on Edit
+  useEffect(() => {
+      if (isEditing && editorRef.current) {
+          editorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+  }, [isEditing]);
+
   // Report States
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reviewToReport, setReviewToReport] = useState<UserReview | null>(null);
@@ -308,6 +345,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
           setRating(myReview.rating);
           setContent(myReview.comment);
           setHasSpoiler(myReview.hasSpoiler || false);
+          setCharacterInput(myReview.character || '');
+          setWatchTimeInput(myReview.watchTime || '');
           const tags = myReview.tags && myReview.tags.length > 0 
             ? myReview.tags 
             : (myReview.category ? [myReview.category] : ['REVIEW' as PostCategory]);
@@ -316,6 +355,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
           setRating(0);
           setContent('');
           setHasSpoiler(false);
+          setCharacterInput('');
+          setWatchTimeInput('');
           setSelectedTags(['REVIEW']); 
       }
   }, [myReview, isEditing]);
@@ -355,7 +396,9 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
               rating, 
               comment: content, 
               hasSpoiler, 
-              tags: selectedTags 
+              tags: selectedTags,
+              character: characterInput.trim() || undefined,
+              watchTime: watchTimeInput.trim() || undefined
           };
           
           await addMutation.mutateAsync(payload);
@@ -367,7 +410,8 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
               upvotes: myReview?.upvotes || 0,
               downvotes: myReview?.downvotes || 0,
               user_id: user!.id,
-              username: user!.user_metadata?.username
+              username: user!.user_metadata?.username,
+              avatar_url: user!.user_metadata?.avatar_url
           };
           await addReview(reviewForContext);
 
@@ -386,7 +430,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
           // SYNC: Remove from Global Context
           await removeReview(movieId);
 
-          setRating(0); setContent(''); setIsEditing(false); setSelectedTags(['REVIEW']);
+          setRating(0); setContent(''); setCharacterInput(''); setWatchTimeInput(''); setIsEditing(false); setSelectedTags(['REVIEW']);
           showToast('Silindi.', 'info');
       } catch (e: any) { showToast('Hata oluştu.', 'error'); }
   };
@@ -511,11 +555,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
 
         {/* --- MODERN EDITOR --- */}
         {isEditing && (
-            <div className="relative animate-slide-in-up">
-                <div className="bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden relative z-10">
+            <div className="relative animate-slide-in-up" ref={editorRef}>
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-neutral-200 dark:border-neutral-800 shadow-2xl relative z-10">
                     
                     {/* Header: User & Rating */}
-                    <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center gap-6">
+                    <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center gap-6 rounded-t-[2rem]">
                         <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0">
                             <img src={getAvatarUrl(user?.user_metadata?.avatar_url)} alt="User" className="w-full h-full rounded-full object-cover bg-black" />
                         </div>
@@ -573,6 +617,60 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
                             </div>
                         </div>
 
+                        {/* Extra Metadata Inputs (Character & WatchTime) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="relative" ref={characterInputRef}>
+                                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    İlgili Karakter <span className="text-[10px] text-neutral-400 normal-case">(Opsiyonel)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={characterInput}
+                                    onChange={e => {
+                                        setCharacterInput(e.target.value);
+                                        setShowCharacterDropdown(true);
+                                    }}
+                                    onFocus={() => setShowCharacterDropdown(true)}
+                                    placeholder="Listeden seç veya yaz"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 text-sm font-medium text-neutral-900 dark:text-white placeholder-neutral-400 border border-transparent focus:border-indigo-500/50 outline-none transition-colors"
+                                />
+                                {showCharacterDropdown && cast.length > 0 && (
+                                    <div className="absolute z-50 w-full bottom-full mb-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl max-h-48 overflow-y-auto custom-scrollbar">
+                                        {cast
+                                            .filter(c => c.character.toLowerCase().includes(characterInput.toLowerCase()) || c.name.toLowerCase().includes(characterInput.toLowerCase()))
+                                            .map(c => (
+                                            <button
+                                                key={c.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setCharacterInput(c.character);
+                                                    setShowCharacterDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex flex-col border-b border-neutral-100 dark:border-neutral-800/50 last:border-0"
+                                            >
+                                                <span className="text-sm font-bold text-neutral-900 dark:text-white">{c.character}</span>
+                                                <span className="text-xs text-neutral-500">{c.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2 flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    Zaman / Bölüm <span className="text-[10px] text-neutral-400 normal-case">(Opsiyonel)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={watchTimeInput}
+                                    onChange={e => setWatchTimeInput(e.target.value)}
+                                    placeholder="Örn: S1 B4 veya 45. Dakika"
+                                    className="w-full px-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 text-sm font-medium text-neutral-900 dark:text-white placeholder-neutral-400 border border-transparent focus:border-indigo-500/50 outline-none transition-colors"
+                                />
+                            </div>
+                        </div>
+
                         <div className="flex items-center justify-between pt-2">
                             {/* Spoiler Toggle */}
                             <label className="flex items-center gap-3 cursor-pointer group select-none">
@@ -597,7 +695,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
             </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar pr-2 pb-4">
             {ownerReview && (
                 <div className="relative">
                     <div className="absolute -left-3 top-6 -bottom-6 w-1 bg-gradient-to-b from-indigo-500 to-transparent rounded-full opacity-20"></div>
@@ -605,7 +703,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
                         review={getDisplayReview(ownerReview)} 
                         highlighted={true} 
                         currentUserId={user?.id} 
-                        onEdit={() => { setIsEditing(true); window.scrollTo({top:0, behavior:'smooth'}); }} 
+                        onEdit={() => { setIsEditing(true); }}
                         onDelete={handleDelete} 
                         onReport={handleOpenReport}
                         onVote={handleVote}
@@ -627,9 +725,10 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
                                 setContent(review.comment); 
                                 setRating(review.rating); 
                                 setHasSpoiler(review.hasSpoiler || false); 
+                                setCharacterInput(review.character || '');
+                                setWatchTimeInput(review.watchTime || '');
                                 const tags = review.tags && review.tags.length > 0 ? review.tags : (review.category ? [review.category] : ['REVIEW' as PostCategory]);
                                 setSelectedTags(tags);
-                                window.scrollTo({top:0, behavior:'smooth'}); 
                             }} 
                             onDelete={handleDelete} 
                             onReport={handleOpenReport}
@@ -648,7 +747,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
             </div>
             
             {hasNextPage && (
-                <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="w-full py-4 text-xs font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors uppercase tracking-widest">
+                <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="w-full py-4 text-xs font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors uppercase tracking-widest bg-neutral-50 dark:bg-neutral-900/50 rounded-xl mt-4 border border-neutral-100 dark:border-neutral-800">
                     {isFetchingNextPage ? 'Yükleniyor...' : 'Daha Fazla Göster'}
                 </button>
             )}

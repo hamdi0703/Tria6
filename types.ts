@@ -173,6 +173,8 @@ export interface UserReview {
   upvoted_by?: string[]; 
   downvoted_by?: string[];
   currentUserVote?: 'UP' | 'DOWN' | null; 
+  character?: string; // EKLENDİ
+  watchTime?: string; // EKLENDİ
 }
 
 export interface Collection {

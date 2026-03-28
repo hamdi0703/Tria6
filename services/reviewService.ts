@@ -10,8 +10,8 @@ export const reviewService = {
         const from = page * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
 
-        // 1. Yorumları Çek (Array sütunlarını da alıyoruz)
-        const { data: reviewsData, error, count } = await supabase
+        // 1. Yorumları Çek (Profiles ilişkisi olmadan, 400 hatasını önlemek için)
+        const response = await supabase
             .from('reviews')
             .select(`
                 id,
@@ -26,29 +26,59 @@ export const reviewService = {
                 downvotes,
                 upvoted_by,
                 downvoted_by,
-                user_id,
-                profiles:user_id (
-                    username,
-                    avatar_url
-                )
+                user_id
             `, { count: 'exact' })
             .eq('movie_id', movieId)
             .order('created_at', { ascending: false })
             .range(from, to);
+
+        const reviewsData = response.data || [];
+        const count = response.count || 0;
+        const error = response.error;
 
         if (error) {
             console.error("Review fetch error:", error);
             return { data: [], count: 0, hasMore: false };
         }
 
-        // 2. Mevcut kullanıcı ID'sini al
+        // 1.5 Kullanıcı profillerini ayrı olarak çek
+        const userIds = [...new Set(reviewsData.map(r => r.user_id).filter(Boolean))];
+        let profilesMap: Record<string, any> = {};
+
+        if (userIds.length > 0) {
+            const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            if (profilesData) {
+                profilesMap = profilesData.reduce((acc, profile) => {
+                    acc[profile.id] = profile;
+                    return acc;
+                }, {} as Record<string, any>);
+            }
+        }
+
+        // 2. Mevcut kullanıcı ID'sini al (Anonim okuma için hata fırlatmaz, null döner)
         const { data: { session } } = await supabase.auth.getSession();
         const currentUserId = session?.user?.id;
 
         // 3. Veriyi Formatla ve Oy Durumunu Hesapla
         const formattedReviews: UserReview[] = reviewsData.map((r: any) => {
             // Etiket Çözümleme
-            let resolvedTags: PostCategory[] = r.tags || [];
+            let allTags: string[] = r.tags || [];
+            let resolvedTags: PostCategory[] = [];
+            let character: string | undefined = undefined;
+            let watchTime: string | undefined = undefined;
+
+            allTags.forEach(tag => {
+                if (typeof tag === 'string') {
+                    if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                    else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                    else resolvedTags.push(tag as PostCategory);
+                }
+            });
+
             if (resolvedTags.length === 0 && r.category) {
                 resolvedTags = [r.category as PostCategory];
             }
@@ -61,6 +91,8 @@ export const reviewService = {
                 else if (r.downvoted_by && r.downvoted_by.includes(currentUserId)) voteStatus = 'DOWN';
             }
 
+            const profile = r.user_id ? profilesMap[r.user_id] : null;
+
             return {
                 id: r.id,
                 movieId: r.movie_id,
@@ -69,14 +101,16 @@ export const reviewService = {
                 hasSpoiler: r.has_spoiler,
                 category: r.category || 'REVIEW',
                 tags: resolvedTags,
+                character: character,
+                watchTime: watchTime,
                 createdAt: r.created_at,
                 upvotes: r.upvotes || 0,
                 downvotes: r.downvotes || 0,
                 upvoted_by: r.upvoted_by || [],
                 downvoted_by: r.downvoted_by || [],
                 user_id: r.user_id,
-                username: r.profiles?.username || 'Anonim',
-                avatar_url: r.profiles?.avatar_url || '1',
+                username: profile?.username || 'Anonim',
+                avatar_url: profile?.avatar_url || '1',
                 currentUserVote: voteStatus
             };
         });
@@ -90,12 +124,10 @@ export const reviewService = {
             return null;
         }
 
+        // Relation olmadan çekiyoruz
         const { data, error } = await supabase
             .from('reviews')
-            .select(`
-                *,
-                profiles:user_id (username, avatar_url)
-            `)
+            .select('*')
             .eq('movie_id', movieId)
             .eq('user_id', userId)
             .maybeSingle();
@@ -103,8 +135,31 @@ export const reviewService = {
         if (error) return null;
         if (!data) return null;
 
+        // Kullanıcı profilini çekiyoruz
+        let profile = null;
+        if (data.user_id) {
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', data.user_id)
+                .maybeSingle();
+            profile = profileData;
+        }
+
         // Backward Compatibility
-        let resolvedTags: PostCategory[] = data.tags || [];
+        let allTags: string[] = data.tags || [];
+        let resolvedTags: PostCategory[] = [];
+        let character: string | undefined = undefined;
+        let watchTime: string | undefined = undefined;
+
+        allTags.forEach(tag => {
+            if (typeof tag === 'string') {
+                if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                else resolvedTags.push(tag as PostCategory);
+            }
+        });
+
         if (resolvedTags.length === 0 && data.category) {
             resolvedTags = [data.category as PostCategory];
         }
@@ -123,14 +178,16 @@ export const reviewService = {
             hasSpoiler: data.has_spoiler,
             category: data.category || 'REVIEW',
             tags: resolvedTags,
+            character: character,
+            watchTime: watchTime,
             createdAt: data.created_at,
             upvotes: data.upvotes || 0,
             downvotes: data.downvotes || 0,
             upvoted_by: data.upvoted_by || [],
             downvoted_by: data.downvoted_by || [],
             user_id: data.user_id,
-            username: data.profiles?.username || 'Kullanıcı',
-            avatar_url: data.profiles?.avatar_url || '1',
+            username: profile?.username || 'Kullanıcı',
+            avatar_url: profile?.avatar_url || '1',
             currentUserVote: voteStatus
         } as UserReview;
     },
@@ -143,6 +200,26 @@ export const reviewService = {
 
         const tagsToSave = review.tags && review.tags.length > 0 ? review.tags : ['REVIEW'];
 
+        // JSONB column "tags" or similar could store extra metadata,
+        // but since we only have `comment` we will save `character` and `watchTime`
+        // as structured JSON inside the existing `comment` field if we want, or append them as text.
+        // Or if there is a metadata column, we could use it. But looking at supabase_setup.sql, we have:
+        // rating, comment, has_spoiler, category, tags.
+        // Since `tags` is JSONB, we can safely embed additional info there without modifying schema:
+        // tags: [...tagsToSave, { character: review.character, watchTime: review.watchTime }]
+        // But since tags is `PostCategory[]` in TypeScript, maybe it's simpler to append to the comment text,
+        // OR format the comment. Since the user can edit, a text format is trickier to parse back.
+        // Let's use a delimiter in the comment string, or just add them to the `tags` array as string values and filter them later.
+
+        // For now, let's embed them into a special JSON string inside `tags` if needed,
+        // or just accept them as normal strings in the `tags` array in Postgres.
+
+        let extraMeta = [];
+        if (review.character) extraMeta.push(`CHARACTER:${review.character}`);
+        if (review.watchTime) extraMeta.push(`TIME:${review.watchTime}`);
+
+        const finalTags = [...tagsToSave, ...extraMeta];
+
         const dbPayload = {
             user_id: userId,
             movie_id: review.movieId,
@@ -150,14 +227,49 @@ export const reviewService = {
             comment: review.comment,
             has_spoiler: review.hasSpoiler || false,
             category: tagsToSave[0],
-            tags: tagsToSave,
+            tags: finalTags,
             updated_at: new Date().toISOString()
         };
 
-        // GÜNCELLEME: onConflict constraint ismini açıkça belirtiyoruz.
-        const { error } = await supabase
+        // GÜNCELLEME: upsert için primary key constraint (unique identifier) kullanın.
+        // Veritabanı yapısına bağlı olarak, genelde benzersiz olan sütunların constraint ismini vermek daha güvenlidir
+        // Veya supabase upsert'te doğrudan kullanıcının aynı filme birden fazla yorum atmasını engelleyen
+        // benzersiz indeks (user_id, movie_id) adı girilmelidir. Eğer bu bir constraint değilse, hata verecektir.
+        // Bu hatayı (there is no unique or exclusion constraint matching the ON CONFLICT specification) önlemek
+        // için önce ilgili kullanıcının ve filmin yorumunu silip insert yapabiliriz veya sadece id varsa ona göre yapabiliriz.
+
+        // Geçici ama güvenli çözüm: onConflict parametresini varsayılan primary key (id) olarak kullanmak.
+        // Ama biz user_id ve movie_id kullanmak istiyoruz, onConflict parametresini kaldırıp .eq zinciriyle match edeceğiz
+        // ya da eğer upsert desteklenmiyorsa update ve insert işlemini ayıracağız.
+
+        let existingReview;
+
+        // Önce yorum var mı diye bak
+        const { data: existingData } = await supabase
             .from('reviews')
-            .upsert(dbPayload, { onConflict: 'user_id, movie_id' });
+            .select('id')
+            .eq('user_id', userId)
+            .eq('movie_id', review.movieId)
+            .maybeSingle();
+
+        existingReview = existingData;
+
+        let error;
+
+        if (existingReview && existingReview.id) {
+            // Yorum varsa, update et
+            const updateResponse = await supabase
+                .from('reviews')
+                .update(dbPayload)
+                .eq('id', existingReview.id);
+            error = updateResponse.error;
+        } else {
+            // Yorum yoksa, insert et
+            const insertResponse = await supabase
+                .from('reviews')
+                .insert(dbPayload);
+            error = insertResponse.error;
+        }
 
         if (error) {
             console.error("Upsert Error:", error);
