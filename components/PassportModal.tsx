@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import TriaPassport from './profile/TriaPassport';
+import IzlemeListemPassport from './profile/IzlemeListemPassport';
 import { useCollectionContext } from '../context/CollectionContext';
 import { useReviewContext } from '../context/ReviewContext';
 import { useAuth } from '../context/AuthContext';
@@ -138,7 +138,7 @@ const PassportModal: React.FC<PassportModalProps> = ({ onClose }) => {
         </button>
 
         <div className="relative animate-slide-in-up w-full max-w-md flex flex-col items-center" onClick={e => e.stopPropagation()}>
-            <TriaPassport 
+            <IzlemeListemPassport
                 username={passportData.username}
                 avatarUrl={passportData.avatarUrl}
                 memberSince={passportData.memberSince}
@@ -149,7 +149,7 @@ const PassportModal: React.FC<PassportModalProps> = ({ onClose }) => {
             />
             
             <div className="mt-8 flex gap-4 opacity-50 hover:opacity-100 transition-opacity">
-                <span className="text-[10px] text-neutral-500 font-mono">POWERED BY TRIA DB</span>
+                <span className="text-[10px] text-neutral-500 font-mono">POWERED BY İZLEME LİSTEM DB</span>
             </div>
         </div>
     </div>

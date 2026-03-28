@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 import { SubscriptionTier } from '../../types';
 import { getAvatarPersona, AVATAR_PERSONAS } from '../../utils/avatarUtils';
 
-interface TriaPassportProps {
+interface IzlemeListemPassportProps {
   username: string;
   avatarUrl: string;
   memberSince: string; // Formatted Year
@@ -17,7 +17,7 @@ interface TriaPassportProps {
   tier?: SubscriptionTier; // Added Tier
 }
 
-const TriaPassport: React.FC<TriaPassportProps> = ({ 
+const IzlemeListemPassport: React.FC<IzlemeListemPassportProps> = ({
     username, 
     avatarUrl, 
     memberSince, 
@@ -159,7 +159,7 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
 
         {/* --- FOOTER DECORATION --- */}
         <div className="mt-6 flex justify-between items-end opacity-30">
-             <div className="font-mono text-[8px] text-neutral-500 tracking-widest">TRIA ID: {username.substring(0,3).toUpperCase()}-{new Date().getFullYear()}</div>
+             <div className="font-mono text-[8px] text-neutral-500 tracking-widest">İZLEME LİSTEM ID: {username.substring(0,3).toUpperCase()}-{new Date().getFullYear()}</div>
              <div className="text-[8px] text-neutral-500 font-bold uppercase">Since {memberSince}</div>
         </div>
 
@@ -168,4 +168,4 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
   );
 };
 
-export default TriaPassport;
+export default IzlemeListemPassport;

@@ -53,7 +53,7 @@ const LiveTicker = () => {
                         Topluluğun <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Sesi</span>
                     </h2>
                     <p className="text-neutral-300 text-lg mb-6">
-                        Tria sadece bir veritabanı değil, yaşayan bir organizma. 
+                        İzleme Listem sadece bir veritabanı değil, yaşayan bir organizma.
                         Her gün binlerce inceleme, puan ve liste paylaşılıyor.
                     </p>
                     <div className="flex justify-center gap-8">

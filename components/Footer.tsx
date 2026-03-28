@@ -20,10 +20,12 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('discover-app')}
                 className="inline-flex items-center gap-2 cursor-pointer group"
             >
-                <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black font-black text-lg shadow-lg group-hover:scale-105 transition-transform">
-                    T.
+                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-white">
+                        <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                    </svg>
                 </div>
-                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Tria.</span>
+                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">İzleme Listem</span>
             </div>
             <p className="text-xs text-neutral-500 leading-relaxed font-medium max-w-xs">
               Sinema dünyasını yapay zeka ile keşfedin. Kişisel koleksiyonlar oluşturun, analiz edin ve paylaşın.
@@ -110,7 +112,7 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         <div className="border-t border-neutral-200 dark:border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-neutral-500 font-medium">
-            © {currentYear} Tria Platform. TMDB API verilerini kullanır.
+            © {currentYear} İzleme Listem. TMDB API verilerini kullanır.
           </p>
           <div className="flex gap-2 items-center">
              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>

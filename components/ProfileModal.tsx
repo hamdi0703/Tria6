@@ -234,7 +234,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, onResetApp, initia
                 <div className="max-w-2xl mx-auto animate-fade-in space-y-10">
                     <div>
                         <h2 className="text-3xl font-black text-neutral-900 dark:text-white mb-2">Profil Görünümü</h2>
-                        <p className="text-neutral-500 dark:text-neutral-400">Tria topluluğunda nasıl göründüğünüzü özelleştirin.</p>
+                        <p className="text-neutral-500 dark:text-neutral-400">İzleme Listem topluluğunda nasıl göründüğünüzü özelleştirin.</p>
                     </div>
 
                     {/* Avatar Selection */}
@@ -348,7 +348,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ onClose, onResetApp, initia
                 <div className="max-w-xl mx-auto animate-fade-in space-y-10">
                     <div>
                         <h2 className="text-3xl font-black text-neutral-900 dark:text-white mb-2">Uygulama Tercihleri</h2>
-                        <p className="text-neutral-500 dark:text-neutral-400">Tria arayüzünü kişiselleştirin.</p>
+                        <p className="text-neutral-500 dark:text-neutral-400">İzleme Listem arayüzünü kişiselleştirin.</p>
                     </div>
 
                     {/* Theme Selector */}
