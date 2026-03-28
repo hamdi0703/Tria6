@@ -148,7 +148,7 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
         {/* Reviews - Full Width, Centered, Constrained Height */}
         <div className="mt-20 lg:mt-32 w-full flex justify-center">
             <div className="w-full max-w-4xl">
-                <ReviewSection movieId={movie.id} movieTitle={displayTitle} />
+                <ReviewSection movieId={movie.id} movieTitle={displayTitle} cast={movie.credits?.cast || []} />
             </div>
         </div>
       </div>

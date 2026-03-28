@@ -9,10 +9,12 @@ import { useGlobalReviews, useOwnerReview, useReviewMutations } from '../../hook
 import { REVIEW_TAGS, getTagConfig } from '../../constants/reviewTags';
 import { reviewService } from '../../services/reviewService';
 import { useClickOutside } from '../../hooks/useClickOutside';
+import { Cast } from '../../types';
 
 interface ReviewSectionProps {
   movieId: number;
   movieTitle: string;
+  cast?: Cast[];
 }
 
 // --- SUB-COMPONENTS ---
@@ -285,7 +287,7 @@ const ReviewCard: React.FC<{
     );
 };
 
-const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) => {
+const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast = [] }) => {
   const { user, openAuthModal } = useAuth();
   const { showToast } = useToast();
   const { sharedList } = useCollectionContext();
@@ -310,6 +312,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
   const [watchTimeInput, setWatchTimeInput] = useState('');
   const [revealedSpoilers, setRevealedSpoilers] = useState<Set<string>>(new Set());
   
+  // Character Dropdown State
+  const [showCharacterDropdown, setShowCharacterDropdown] = useState(false);
+  const characterInputRef = useRef<HTMLDivElement>(null);
+  useClickOutside(characterInputRef, () => setShowCharacterDropdown(false));
+
   // Report States
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reviewToReport, setReviewToReport] = useState<UserReview | null>(null);
@@ -602,7 +609,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
 
                         {/* Extra Metadata Inputs (Character & WatchTime) */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                            <div>
+                            <div className="relative" ref={characterInputRef}>
                                 <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2 flex items-center gap-2">
                                     <svg className="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                                     İlgili Karakter <span className="text-[10px] text-neutral-400 normal-case">(Opsiyonel)</span>
@@ -610,10 +617,34 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
                                 <input
                                     type="text"
                                     value={characterInput}
-                                    onChange={e => setCharacterInput(e.target.value)}
-                                    placeholder="Örn: Arthur Shelby"
+                                    onChange={e => {
+                                        setCharacterInput(e.target.value);
+                                        setShowCharacterDropdown(true);
+                                    }}
+                                    onFocus={() => setShowCharacterDropdown(true)}
+                                    placeholder="Listeden seç veya yaz"
                                     className="w-full px-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 text-sm font-medium text-neutral-900 dark:text-white placeholder-neutral-400 border border-transparent focus:border-indigo-500/50 outline-none transition-colors"
                                 />
+                                {showCharacterDropdown && cast.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
+                                        {cast
+                                            .filter(c => c.character.toLowerCase().includes(characterInput.toLowerCase()) || c.name.toLowerCase().includes(characterInput.toLowerCase()))
+                                            .map(c => (
+                                            <button
+                                                key={c.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setCharacterInput(c.character);
+                                                    setShowCharacterDropdown(false);
+                                                }}
+                                                className="w-full text-left px-4 py-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex flex-col border-b border-neutral-100 dark:border-neutral-800/50 last:border-0"
+                                            >
+                                                <span className="text-sm font-bold text-neutral-900 dark:text-white">{c.character}</span>
+                                                <span className="text-xs text-neutral-500">{c.name}</span>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-neutral-500 uppercase tracking-wide mb-2 flex items-center gap-2">
