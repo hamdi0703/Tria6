@@ -139,7 +139,7 @@ const MoodSelector: React.FC = () => {
                     renderSkeleton()
                 ) : (
                     <div className="grid grid-cols-3 gap-4 md:gap-8 w-full max-w-3xl min-h-[200px]">
-                        {activeMovies.map((movie, idx) => (
+                        {activeMovies?.map((movie, idx) => (
                             <div 
                                 key={movie.id} 
                                 className="group relative aspect-[2/3] rounded-xl overflow-hidden shadow-2xl bg-neutral-900 transform transition-all duration-500 hover:scale-105 hover:-translate-y-2 animate-fade-in ring-1 ring-white/10 hover:ring-white/30"

@@ -1,5 +1,5 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 import { SubscriptionTier } from '../../types';
 import { getAvatarPersona, AVATAR_PERSONAS } from '../../utils/avatarUtils';
 
@@ -38,6 +38,29 @@ const IzlemeListemPassport: React.FC<IzlemeListemPassportProps> = ({
 
   const style = getTierStyle();
 
+  // 3D Tilt Effect State
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+
+    const tiltX = ((y - centerY) / centerY) * -10; // Max 10 deg
+    const tiltY = ((x - centerX) / centerX) * 10;
+
+    setTilt({ x: tiltX, y: tiltY });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
   const persona = useMemo(() => {
     let personaId = '1';
     if (avatarUrl) {
@@ -54,7 +77,16 @@ const IzlemeListemPassport: React.FC<IzlemeListemPassportProps> = ({
   }, [avatarUrl]);
 
   return (
-    <div className={`relative w-full max-w-[380px] mx-auto aspect-[1/1.55] bg-[#050505] rounded-[24px] overflow-hidden shadow-2xl ring-1 ring-white/10 font-sans group select-none transition-transform duration-500 hover:scale-[1.01] ${tier === 'PRO' || tier === 'ADMIN' ? style.glow : ''}`}>
+    <div
+        ref={cardRef}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{
+            transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+            transition: tilt.x === 0 && tilt.y === 0 ? 'transform 0.5s ease-out' : 'none'
+        }}
+        className={`relative w-full max-w-[380px] mx-auto aspect-[1/1.55] bg-[#050505] rounded-[24px] overflow-hidden shadow-2xl ring-1 ring-white/10 font-sans group select-none ${tier === 'PRO' || tier === 'ADMIN' ? style.glow : ''}`}
+    >
       
       {/* 1. ATMOSPHERE & BACKGROUND */}
       {/* Persona specific gradient background */}
@@ -160,7 +192,7 @@ const IzlemeListemPassport: React.FC<IzlemeListemPassportProps> = ({
         {/* --- FOOTER DECORATION --- */}
         <div className="mt-6 flex justify-between items-end opacity-30">
              <div className="font-mono text-[8px] text-neutral-500 tracking-widest">İZLEME LİSTEM ID: {username.substring(0,3).toUpperCase()}-{new Date().getFullYear()}</div>
-             <div className="text-[8px] text-neutral-500 font-bold uppercase">Since {memberSince}</div>
+             <div className="text-[8px] text-neutral-500 font-bold uppercase">Since {memberSince === 'NaN' || !memberSince ? new Date().getFullYear() : memberSince}</div>
         </div>
 
       </div>

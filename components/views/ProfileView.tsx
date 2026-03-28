@@ -202,7 +202,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
                             </a>
                         )}
                         <div className="text-xs text-neutral-400 font-medium px-2">
-                            Katılım: {new Date(profile.created_at).getFullYear()}
+                            Katılım: {new Date(profile.created_at || Date.now()).getFullYear()}
                         </div>
                     </div>
                 </div>

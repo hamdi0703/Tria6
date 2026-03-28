@@ -124,7 +124,7 @@ const ExploreView: React.FC<ExploreViewProps> = ({
             </div>
         ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12 pb-20">
-                {movies.map((movie, index) => {
+                {movies?.map((movie, index) => {
                     if (movies.length === index + 1) {
                         return (
                             <div ref={lastMovieElementRef} key={`${movie.id}-${index}`}>

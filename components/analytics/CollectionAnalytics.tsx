@@ -63,7 +63,7 @@ const ListWidget: React.FC<ListWidgetProps> = ({ title, iconColor, items, emptyM
       
       <div className="space-y-3 flex-1 overflow-y-auto pr-1 custom-scrollbar">
         {visibleItems.length > 0 ? (
-          visibleItems.map((item, idx) => (
+          visibleItems?.map((item, idx) => (
             <div 
                 key={`${item.id}-${idx}`} 
                 className="flex items-center justify-between p-2 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors group"
@@ -262,7 +262,7 @@ const CollectionAnalytics: React.FC<CollectionAnalyticsProps> = ({ movies, genre
                         
                         {/* Sayılı Liste (Geliştirilmiş UX) - Artık tür adı ve sayısı yan yana - 8 Öğe Gösteriliyor */}
                         <div className="flex flex-col gap-2">
-                            {chartData.genreData.labels.slice(0, 8).map((label, idx) => (
+                            {chartData?.genreData?.labels?.slice(0, 8).map((label, idx) => (
                                 <div key={idx} className="flex items-center justify-between text-xs bg-neutral-50 dark:bg-neutral-800/50 p-2 rounded-lg border border-neutral-100 dark:border-neutral-800">
                                     <div className="flex items-center gap-2">
                                         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: (chartData.genreData.datasets[0].backgroundColor as string[])[idx] }}></div>
