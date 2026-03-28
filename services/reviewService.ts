@@ -10,7 +10,7 @@ export const reviewService = {
         const from = page * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
 
-        // 1. Yorumları Çek (Array sütunlarını da alıyoruz)
+        // 1. Yorumları Çek (Profiles ilişkisi olmadan, 400 hatasını önlemek için)
         const response = await supabase
             .from('reviews')
             .select(`
@@ -26,11 +26,7 @@ export const reviewService = {
                 downvotes,
                 upvoted_by,
                 downvoted_by,
-                user_id,
-                profiles:user_id (
-                    username,
-                    avatar_url
-                )
+                user_id
             `, { count: 'exact' })
             .eq('movie_id', movieId)
             .order('created_at', { ascending: false })
@@ -45,7 +41,25 @@ export const reviewService = {
             return { data: [], count: 0, hasMore: false };
         }
 
-        // 2. Mevcut kullanıcı ID'sini al
+        // 1.5 Kullanıcı profillerini ayrı olarak çek
+        const userIds = [...new Set(reviewsData.map(r => r.user_id).filter(Boolean))];
+        let profilesMap: Record<string, any> = {};
+
+        if (userIds.length > 0) {
+            const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            if (profilesData) {
+                profilesMap = profilesData.reduce((acc, profile) => {
+                    acc[profile.id] = profile;
+                    return acc;
+                }, {} as Record<string, any>);
+            }
+        }
+
+        // 2. Mevcut kullanıcı ID'sini al (Anonim okuma için hata fırlatmaz, null döner)
         const { data: { session } } = await supabase.auth.getSession();
         const currentUserId = session?.user?.id;
 
@@ -65,6 +79,8 @@ export const reviewService = {
                 else if (r.downvoted_by && r.downvoted_by.includes(currentUserId)) voteStatus = 'DOWN';
             }
 
+            const profile = r.user_id ? profilesMap[r.user_id] : null;
+
             return {
                 id: r.id,
                 movieId: r.movie_id,
@@ -79,8 +95,8 @@ export const reviewService = {
                 upvoted_by: r.upvoted_by || [],
                 downvoted_by: r.downvoted_by || [],
                 user_id: r.user_id,
-                username: r.profiles?.username || 'Anonim',
-                avatar_url: r.profiles?.avatar_url || '1',
+                username: profile?.username || 'Anonim',
+                avatar_url: profile?.avatar_url || '1',
                 currentUserVote: voteStatus
             };
         });
@@ -94,18 +110,27 @@ export const reviewService = {
             return null;
         }
 
+        // Relation olmadan çekiyoruz
         const { data, error } = await supabase
             .from('reviews')
-            .select(`
-                *,
-                profiles:user_id (username, avatar_url)
-            `)
+            .select('*')
             .eq('movie_id', movieId)
             .eq('user_id', userId)
             .maybeSingle();
 
         if (error) return null;
         if (!data) return null;
+
+        // Kullanıcı profilini çekiyoruz
+        let profile = null;
+        if (data.user_id) {
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('username, avatar_url')
+                .eq('id', data.user_id)
+                .maybeSingle();
+            profile = profileData;
+        }
 
         // Backward Compatibility
         let resolvedTags: PostCategory[] = data.tags || [];
@@ -133,8 +158,8 @@ export const reviewService = {
             upvoted_by: data.upvoted_by || [],
             downvoted_by: data.downvoted_by || [],
             user_id: data.user_id,
-            username: data.profiles?.username || 'Kullanıcı',
-            avatar_url: data.profiles?.avatar_url || '1',
+            username: profile?.username || 'Kullanıcı',
+            avatar_url: profile?.avatar_url || '1',
             currentUserVote: voteStatus
         } as UserReview;
     },
