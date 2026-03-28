@@ -180,45 +180,62 @@ const ReviewCard: React.FC<{
     return (
         <div className={`group relative p-6 rounded-[2rem] border transition-all duration-300 backdrop-blur-sm ${highlighted ? 'bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 border-indigo-500/30 shadow-lg shadow-indigo-500/5' : 'bg-white/80 dark:bg-neutral-900/40 border-neutral-200/60 dark:border-neutral-800/60 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-white dark:hover:bg-neutral-900/80 shadow-sm hover:shadow-md'}`}>
             <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700 p-[2px] shadow-sm">
-                        <img src={getAvatarUrl(review.avatar_url)} alt={review.username} className="w-full h-full rounded-full object-cover" />
-                    </div>
-                    <div>
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="font-bold text-neutral-900 dark:text-white text-sm mr-1">{review.username}</span>
-                            
-                            {/* RENDER TAGS */}
-                            <div className="flex flex-wrap gap-1.5">
-                                {displayTags.map(tagId => {
-                                    const config = getTagConfig(tagId);
-                                    return (
-                                        <span key={tagId} className={`inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold border ${config.bgClass} ${config.colorClass} ${config.borderClass}`}>
-                                            {config.icon}
-                                            {config.label}
-                                        </span>
-                                    );
-                                })}
-                                {review.sceneTime && (
-                                    <span className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold border bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700">
-                                        ⏱ {review.sceneTime}
-                                    </span>
-                                )}
-                                {review.character && (
-                                    <span className="inline-flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold border bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 border-neutral-200 dark:border-neutral-700">
-                                        👤 {review.character}
-                                    </span>
-                                )}
+                <div className="flex items-center gap-4 w-full">
+                    {/* AVATAR */}
+                    <div className="w-12 h-12 flex-shrink-0 rounded-full bg-gradient-to-tr from-neutral-200 to-neutral-300 dark:from-neutral-800 dark:to-neutral-700 p-[2px] shadow-sm relative">
+                        <img src={getAvatarUrl(review.avatar_url)} alt={review.username} className="w-full h-full rounded-full object-cover border-2 border-white dark:border-neutral-900" />
+                        <div className="absolute -bottom-1 -right-1 bg-white dark:bg-neutral-900 rounded-full p-[2px] shadow-sm">
+                            <div className="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full px-1.5 py-0.5 text-[8px] font-black flex items-center gap-0.5">
+                                ★ {review.rating}
                             </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                            <StarRating current={review.rating} size="sm" />
-                            <span className="text-[10px] text-neutral-400">• {timeAgo}</span>
+                    </div>
+
+                    {/* USER INFO & METADATA */}
+                    <div className="flex-grow min-w-0">
+                        <div className="flex items-center justify-between mb-1.5">
+                            <div className="flex items-center gap-2 truncate">
+                                <span className="font-black text-neutral-900 dark:text-white text-base truncate">{review.username}</span>
+                                <span className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500 whitespace-nowrap">• {timeAgo}</span>
+                            </div>
+                        </div>
+
+                        {/* BADGES ROW */}
+                        <div className="flex flex-wrap items-center gap-2">
+                            {/* TAGS */}
+                            {displayTags.map(tagId => {
+                                const config = getTagConfig(tagId);
+                                return (
+                                    <span key={tagId} className={`inline-flex items-center gap-1 text-[10px] px-2.5 py-1 rounded-lg font-bold border shadow-sm ${config.bgClass} ${config.colorClass} ${config.borderClass}`}>
+                                        {config.icon}
+                                        {config.label}
+                                    </span>
+                                );
+                            })}
+
+                            {/* EXTRA METADATA */}
+                            {(review.sceneTime || review.character) && (
+                                <div className="flex items-center gap-2 ml-1 border-l border-neutral-200 dark:border-neutral-800 pl-3">
+                                    {review.character && (
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neutral-600 dark:text-neutral-300">
+                                            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                            {review.character}
+                                        </span>
+                                    )}
+                                    {review.sceneTime && (
+                                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neutral-600 dark:text-neutral-300">
+                                            <svg className="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            {review.sceneTime}
+                                        </span>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
                 
-                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                {/* ACTIONS */}
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity ml-4 flex-shrink-0">
                     {isMe ? (
                         <>
                             <button onClick={() => onEdit(review)} className="p-1.5 text-neutral-400 hover:text-indigo-500 transition-colors" title="Düzenle"><svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button>
@@ -548,7 +565,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
 
         {/* --- MODERN EDITOR --- */}
         {isEditing && (
-            <div className="relative animate-slide-in-up">
+            <div id="review-editor-area" className="relative animate-slide-in-up">
                 <div className="bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden relative z-10">
                     
                     {/* Header: User & Rating */}
@@ -706,7 +723,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                                 setHasSpoiler(review.hasSpoiler || false); 
                                 const tags = review.tags && review.tags.length > 0 ? review.tags : (review.category ? [review.category] : ['REVIEW' as PostCategory]);
                                 setSelectedTags(tags);
-                                window.scrollTo({top:0, behavior:'smooth'}); 
+
+                                setTimeout(() => {
+                                    const editor = document.getElementById('review-editor-area');
+                                    if (editor) {
+                                        editor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                        // Auto focus text area
+                                        const textarea = editor.querySelector('textarea');
+                                        if (textarea) textarea.focus();
+                                    }
+                                }, 100);
                             }} 
                             onDelete={handleDelete} 
                             onReport={handleOpenReport}
