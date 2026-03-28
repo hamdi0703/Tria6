@@ -121,18 +121,18 @@ const AppContent: React.FC = () => {
   // UX Improvement: Dynamic Document Title
   useEffect(() => {
     if (selectedMovie) {
-        document.title = `${selectedMovie.title || selectedMovie.name} | Tria`;
+        document.title = `${selectedMovie.title || selectedMovie.name} | İzleme Listem`;
     } else {
         switch(viewMode) {
-            case 'dashboard': document.title = 'Koleksiyonum | Tria'; break;
-            case 'profile': document.title = viewingProfileUsername ? `@${viewingProfileUsername} | Tria` : 'Profil | Tria'; break;
+            case 'dashboard': document.title = 'Koleksiyonum | İzleme Listem'; break;
+            case 'profile': document.title = viewingProfileUsername ? `@${viewingProfileUsername} | İzleme Listem` : 'Profil | İzleme Listem'; break;
             case 'frame-focus': document.title = 'Frame Focus | Oyun'; break;
             case 'cine-roulette': document.title = 'CineRoulette | Kasa Aç'; break;
             case 'cine-match': document.title = 'CineMatch | Eşleş'; break;
-            case 'discover-app': document.title = 'Tria | Hakkında'; break;
-            case 'shared': document.title = 'Paylaşılan Liste | Tria'; break;
-            case 'not-found': document.title = 'Sayfa Bulunamadı | Tria'; break;
-            default: document.title = 'Tria | Keşfet';
+            case 'discover-app': document.title = 'İzleme Listem | Hakkında'; break;
+            case 'shared': document.title = 'Paylaşılan Liste | İzleme Listem'; break;
+            case 'not-found': document.title = 'Sayfa Bulunamadı | İzleme Listem'; break;
+            default: document.title = 'İzleme Listem | Keşfet';
         }
     }
   }, [viewMode, selectedMovie, viewingProfileUsername]);

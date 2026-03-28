@@ -34,9 +34,11 @@ const LandingHeader: React.FC<LandingHeaderProps> = ({ onLogin, onNavigateApp })
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black font-black text-lg shadow-[0_0_15px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
-                T.
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 translate-x-[1px]">
+                    <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                </svg>
             </div>
-            <span className="text-xl font-bold text-white tracking-tight hidden sm:block">Tria.</span>
+            <span className="text-xl font-bold text-white tracking-tight hidden sm:block">İzleme Listem</span>
         </div>
 
         {/* Actions */}

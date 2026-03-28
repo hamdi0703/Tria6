@@ -90,7 +90,7 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                 onClick={onBack} 
                 className="px-8 py-3 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-xl font-bold hover:opacity-90 transition-opacity"
             >
-                Tria Anasayfasına Dön
+                İzleme Listem Anasayfasına Dön
             </button>
         </div>
     );
@@ -237,12 +237,12 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                     onClick={onBack}
                     className="px-8 py-3 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-black font-bold hover:scale-105 transition-transform shadow-xl"
                >
-                   {user ? 'Koleksiyonuma Dön' : 'Tria\'yı Keşfet'}
+                   {user ? 'Koleksiyonuma Dön' : 'İzleme Listem\'i Keşfet'}
                </button>
            </div>
            
            <div className="mt-12 opacity-50">
-                <span className="text-xs font-bold tracking-widest uppercase text-neutral-400 dark:text-neutral-600">Tria.</span>
+                <span className="text-xs font-bold tracking-widest uppercase text-neutral-400 dark:text-neutral-600">İzleme Listem</span>
            </div>
       </div>
     </div>

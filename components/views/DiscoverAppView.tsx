@@ -117,7 +117,7 @@ const DiscoverAppView: React.FC<DiscoverAppViewProps> = ({ onNavigate }) => {
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-orange-500">Sona Erdi.</span>
                     </h2>
                     <p className="text-base md:text-lg text-neutral-400 leading-relaxed max-w-2xl">
-                        Ne izleyeceğine karar veremiyor musun? Tria'nın entegre mini oyunları ile şansını dene. Her biri farklı bir deneyim sunar.
+                        Ne izleyeceğine karar veremiyor musun? İzleme Listem'in entegre mini oyunları ile şansını dene. Her biri farklı bir deneyim sunar.
                     </p>
                   </div>
                   
@@ -154,7 +154,7 @@ const DiscoverAppView: React.FC<DiscoverAppViewProps> = ({ onNavigate }) => {
                 <span className="relative z-10">UYGULAMAYA GİT</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-20 transition-opacity"></div>
             </button>
-            <p className="mt-8 text-neutral-500 text-xs md:text-sm font-mono tracking-widest">TRIA 2.0 • GÜVENLİ VE HIZLI</p>
+            <p className="mt-8 text-neutral-500 text-xs md:text-sm font-mono tracking-widest">İZLEME LİSTEM 2.0 • GÜVENLİ VE HIZLI</p>
           </ScrollReveal>
       </section>
 

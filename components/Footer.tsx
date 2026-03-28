@@ -20,10 +20,12 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 onClick={() => onNavigate('discover-app')}
                 className="inline-flex items-center gap-2 cursor-pointer group"
             >
-                <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black font-black text-lg shadow-lg group-hover:scale-105 transition-transform">
-                    T.
+                <div className="w-8 h-8 bg-neutral-900 dark:bg-white rounded-lg flex items-center justify-center text-white dark:text-black shadow-lg group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 translate-x-[1px]">
+                        <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                    </svg>
                 </div>
-                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">Tria.</span>
+                <span className="text-xl font-bold text-neutral-900 dark:text-white tracking-tight">İzleme Listem</span>
             </div>
             <p className="text-xs text-neutral-500 leading-relaxed font-medium max-w-xs">
               Sinema dünyasını yapay zeka ile keşfedin. Kişisel koleksiyonlar oluşturun, analiz edin ve paylaşın.
@@ -88,9 +90,6 @@ const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                   <a href="#" className="hover:text-indigo-600 dark:hover:text-white transition-colors">Kullanım Şartları</a>
-              </li>
-              <li>
-                  <a href="mailto:hello@tria.app" className="hover:text-indigo-600 dark:hover:text-white transition-colors">hello@tria.app</a>
               </li>
             </ul>
             
