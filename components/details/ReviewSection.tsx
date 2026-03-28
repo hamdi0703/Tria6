@@ -597,7 +597,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
             </div>
         )}
 
-        <div className="space-y-6">
+        <div className="space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar pr-2 pb-4">
             {ownerReview && (
                 <div className="relative">
                     <div className="absolute -left-3 top-6 -bottom-6 w-1 bg-gradient-to-b from-indigo-500 to-transparent rounded-full opacity-20"></div>
@@ -648,7 +648,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle }) =>
             </div>
             
             {hasNextPage && (
-                <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="w-full py-4 text-xs font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors uppercase tracking-widest">
+                <button onClick={() => fetchNextPage()} disabled={isFetchingNextPage} className="w-full py-4 text-xs font-bold text-neutral-500 hover:text-neutral-900 dark:hover:text-white transition-colors uppercase tracking-widest bg-neutral-50 dark:bg-neutral-900/50 rounded-xl mt-4 border border-neutral-100 dark:border-neutral-800">
                     {isFetchingNextPage ? 'Yükleniyor...' : 'Daha Fazla Göster'}
                 </button>
             )}

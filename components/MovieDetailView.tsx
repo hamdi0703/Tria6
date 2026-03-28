@@ -53,7 +53,7 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
   const keyPeople = isTv ? (creators || 'Belirtilmemiş') : director;
 
   return (
-    <div className="min-h-screen bg-vista-light dark:bg-black animate-slide-in-right w-full overflow-x-hidden">
+    <div className="min-h-screen bg-vista-light dark:bg-black animate-slide-in-right w-full overflow-x-hidden pb-20">
       
       {/* IMMERSIVE HERO */}
       <DetailHero 
@@ -66,15 +66,18 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
       {/* CONTENT BODY */}
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 lg:px-20 py-12 md:py-20 relative z-10">
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
             
             {/* LEFT COLUMN: Overview & Key Info */}
-            <div className="lg:col-span-8 space-y-12">
+            <div className="lg:col-span-8 space-y-16">
                 
                 {/* Overview */}
-                <div className="prose dark:prose-invert max-w-none">
-                    <h3 className="text-sm font-black text-neutral-400 uppercase tracking-widest mb-4">Hikaye</h3>
-                    <p className="text-xl md:text-2xl leading-relaxed font-light text-neutral-800 dark:text-neutral-200">
+                <div className="prose dark:prose-invert max-w-none bg-white dark:bg-[#0a0a0a] p-8 md:p-10 rounded-3xl border border-neutral-100 dark:border-neutral-800/60 shadow-sm">
+                    <h3 className="text-sm font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" /></svg>
+                        Hikaye
+                    </h3>
+                    <p className="text-lg md:text-2xl leading-relaxed font-medium text-neutral-700 dark:text-neutral-300">
                         {movie.overview || "Bu içerik için özet bilgisi bulunmamaktadır."}
                     </p>
                 </div>
@@ -92,44 +95,45 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
                 )}
 
                 {/* Cast */}
-                <div className="border-t border-neutral-200 dark:border-neutral-800 pt-12">
+                <div>
                     <CastList cast={movie.credits?.cast} />
-                </div>
-
-                {/* Reviews */}
-                <div className="border-t border-neutral-200 dark:border-neutral-800 pt-12">
-                    <ReviewSection movieId={movie.id} movieTitle={displayTitle} />
                 </div>
             </div>
 
             {/* RIGHT COLUMN: Sidebar Info */}
             <div className="lg:col-span-4 space-y-8">
-                <div className="bg-neutral-100 dark:bg-neutral-900 rounded-3xl p-8 border border-neutral-200 dark:border-neutral-800 sticky top-24">
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 border border-neutral-100 dark:border-neutral-800/60 shadow-sm sticky top-24">
                     
                     {keyPeople && (
-                        <div className="mb-8">
-                            <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">{keyPeopleLabel}</h4>
-                            <p className="text-lg font-bold text-neutral-900 dark:text-white">{keyPeople}</p>
+                        <div className="mb-10">
+                            <h4 className="text-xs font-black text-neutral-400 uppercase tracking-[0.2em] mb-3">{keyPeopleLabel}</h4>
+                            <div className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-indigo-500">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                </div>
+                                {keyPeople}
+                            </div>
                         </div>
                     )}
 
                     {movie.status && (
-                        <div className="mb-8">
-                            <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Durum</h4>
-                            <span className={`inline-block px-3 py-1 rounded-lg text-sm font-bold ${movie.status === 'Ended' || movie.status === 'Canceled' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'}`}>
+                        <div className="mb-10">
+                            <h4 className="text-xs font-black text-neutral-400 uppercase tracking-[0.2em] mb-3">Durum</h4>
+                            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold border ${movie.status === 'Ended' || movie.status === 'Canceled' ? 'bg-red-50 border-red-100 text-red-600 dark:bg-red-900/10 dark:border-red-900/30 dark:text-red-400' : 'bg-green-50 border-green-100 text-green-600 dark:bg-green-900/10 dark:border-green-900/30 dark:text-green-400'}`}>
+                                <span className={`w-2 h-2 rounded-full ${movie.status === 'Ended' || movie.status === 'Canceled' ? 'bg-red-500' : 'bg-green-500'}`}></span>
                                 {movie.status === 'Returning Series' ? 'Devam Ediyor' : movie.status}
-                            </span>
+                            </div>
                         </div>
                     )}
 
                     {/* Production Countries */}
                     {movie.production_countries && movie.production_countries.length > 0 && (
                         <div>
-                            <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3">Ülke</h4>
-                            <div className="flex flex-wrap gap-2">
+                            <h4 className="text-xs font-black text-neutral-400 uppercase tracking-[0.2em] mb-4">Ülke</h4>
+                            <div className="flex flex-wrap gap-3">
                                 {movie.production_countries.map(c => (
-                                    <span key={c.iso_3166_1} className="flex items-center gap-2 bg-white dark:bg-neutral-800 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 text-sm font-medium">
-                                        <img src={`https://flagcdn.com/w20/${c.iso_3166_1.toLowerCase()}.png`} alt={c.name} className="w-5 h-auto rounded-sm" />
+                                    <span key={c.iso_3166_1} className="flex items-center gap-2.5 bg-neutral-50 dark:bg-neutral-900/50 px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-800 text-sm font-bold text-neutral-700 dark:text-neutral-300 transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800">
+                                        <img src={`https://flagcdn.com/w20/${c.iso_3166_1.toLowerCase()}.png`} alt={c.name} className="w-5 h-auto rounded shadow-sm" />
                                         {c.iso_3166_1}
                                     </span>
                                 ))}
@@ -139,6 +143,13 @@ const MovieDetailView: React.FC<MovieDetailViewProps> = ({
                 </div>
             </div>
 
+        </div>
+
+        {/* Reviews - Full Width, Centered, Constrained Height */}
+        <div className="mt-20 lg:mt-32 w-full flex justify-center">
+            <div className="w-full max-w-4xl">
+                <ReviewSection movieId={movie.id} movieTitle={displayTitle} />
+            </div>
         </div>
       </div>
     </div>
