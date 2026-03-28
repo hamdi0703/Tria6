@@ -11,7 +11,7 @@ export const reviewService = {
         const to = from + PAGE_SIZE - 1;
 
         // 1. Yorumları Çek (Array sütunlarını da alıyoruz)
-        const { data: reviewsData, error, count } = await supabase
+        const response = await supabase
             .from('reviews')
             .select(`
                 id,
@@ -35,6 +35,10 @@ export const reviewService = {
             .eq('movie_id', movieId)
             .order('created_at', { ascending: false })
             .range(from, to);
+
+        const reviewsData = response.data || [];
+        const count = response.count || 0;
+        const error = response.error;
 
         if (error) {
             console.error("Review fetch error:", error);
@@ -154,10 +158,45 @@ export const reviewService = {
             updated_at: new Date().toISOString()
         };
 
-        // GÜNCELLEME: onConflict constraint ismini açıkça belirtiyoruz.
-        const { error } = await supabase
+        // GÜNCELLEME: upsert için primary key constraint (unique identifier) kullanın.
+        // Veritabanı yapısına bağlı olarak, genelde benzersiz olan sütunların constraint ismini vermek daha güvenlidir
+        // Veya supabase upsert'te doğrudan kullanıcının aynı filme birden fazla yorum atmasını engelleyen
+        // benzersiz indeks (user_id, movie_id) adı girilmelidir. Eğer bu bir constraint değilse, hata verecektir.
+        // Bu hatayı (there is no unique or exclusion constraint matching the ON CONFLICT specification) önlemek
+        // için önce ilgili kullanıcının ve filmin yorumunu silip insert yapabiliriz veya sadece id varsa ona göre yapabiliriz.
+
+        // Geçici ama güvenli çözüm: onConflict parametresini varsayılan primary key (id) olarak kullanmak.
+        // Ama biz user_id ve movie_id kullanmak istiyoruz, onConflict parametresini kaldırıp .eq zinciriyle match edeceğiz
+        // ya da eğer upsert desteklenmiyorsa update ve insert işlemini ayıracağız.
+
+        let existingReview;
+
+        // Önce yorum var mı diye bak
+        const { data: existingData } = await supabase
             .from('reviews')
-            .upsert(dbPayload, { onConflict: 'user_id, movie_id' });
+            .select('id')
+            .eq('user_id', userId)
+            .eq('movie_id', review.movieId)
+            .maybeSingle();
+
+        existingReview = existingData;
+
+        let error;
+
+        if (existingReview && existingReview.id) {
+            // Yorum varsa, update et
+            const updateResponse = await supabase
+                .from('reviews')
+                .update(dbPayload)
+                .eq('id', existingReview.id);
+            error = updateResponse.error;
+        } else {
+            // Yorum yoksa, insert et
+            const insertResponse = await supabase
+                .from('reviews')
+                .insert(dbPayload);
+            error = insertResponse.error;
+        }
 
         if (error) {
             console.error("Upsert Error:", error);
