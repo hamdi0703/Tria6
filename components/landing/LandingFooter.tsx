@@ -9,7 +9,14 @@ const LandingFooter: React.FC = () => {
           
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="text-2xl font-black text-white tracking-tighter mb-4">Tria.</div>
+            <div className="flex items-center gap-2 mb-4 group cursor-pointer">
+                <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center text-black shadow-lg group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 translate-x-[1px]">
+                        <path fillRule="evenodd" d="M4.5 5.653c0-1.427 1.529-2.33 2.779-1.643l11.54 6.347c1.295.712 1.295 2.573 0 3.286L7.28 19.99c-1.25.687-2.779-.217-2.779-1.643V5.653Z" clipRule="evenodd" />
+                    </svg>
+                </div>
+                <div className="text-2xl font-black text-white tracking-tighter">İzleme Listem</div>
+            </div>
             <p className="text-xs text-neutral-500 leading-relaxed">
               Yapay zeka destekli, modern ve estetik film keşif platformu. Sinema tutkunları için tasarlandı.
             </p>

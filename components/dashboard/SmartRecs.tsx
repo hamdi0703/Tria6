@@ -176,7 +176,7 @@ const SmartRecs: React.FC<SmartRecsProps> = ({
                 <div>
                     <div className="flex items-center gap-2 mb-2">
                         <span className="px-2 py-1 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest rounded-md shadow-lg shadow-indigo-500/30">
-                            Tria AI
+                            İzleme Listem AI
                         </span>
                         <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
                             {type === 'movie' ? 'Film Önerisi' : 'Dizi Önerisi'}

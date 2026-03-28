@@ -150,7 +150,7 @@ const FeatureBoards = () => {
                  </div>
                  <h3 className="text-3xl font-black text-white mb-3 tracking-tight">Akıllı & Dayanıklı</h3>
                  <p className="text-neutral-400 leading-relaxed">
-                     Tria v2.2, bağlantı sorunlarına karşı dirençli bir mimari sunar. 
+                     İzleme Listem v2.2, bağlantı sorunlarına karşı dirençli bir mimari sunar.
                      <span className="text-white font-medium"> Akıllı Yedekleme (Smart Fallback)</span> sistemi sayesinde API kesintilerinde bile gezintiye devam edersiniz.
                  </p>
              </div>
@@ -199,7 +199,7 @@ const FeatureBoards = () => {
               </div>
               <h3 className="text-3xl font-black text-white mb-3">Sinema Gurusu Ol.</h3>
               <p className="text-neutral-400 mb-6">
-                  Sadece puan verme, detaylı analiz yaz. Spoiler etiketi ekle, teorilerini paylaş veya sinematografiyi öv. Tria ile sesin daha gür çıksın.
+                  Sadece puan verme, detaylı analiz yaz. Spoiler etiketi ekle, teorilerini paylaş veya sinematografiyi öv. İzleme Listem ile sesin daha gür çıksın.
               </p>
               <div className="flex flex-wrap gap-2">
                   <span className="px-3 py-1 rounded-full bg-neutral-800 border border-white/10 text-[10px] font-bold text-neutral-300">#Teori</span>
