@@ -66,7 +66,19 @@ export const reviewService = {
         // 3. Veriyi Formatla ve Oy Durumunu Hesapla
         const formattedReviews: UserReview[] = reviewsData.map((r: any) => {
             // Etiket Çözümleme
-            let resolvedTags: PostCategory[] = r.tags || [];
+            let allTags: string[] = r.tags || [];
+            let resolvedTags: PostCategory[] = [];
+            let character: string | undefined = undefined;
+            let watchTime: string | undefined = undefined;
+
+            allTags.forEach(tag => {
+                if (typeof tag === 'string') {
+                    if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                    else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                    else resolvedTags.push(tag as PostCategory);
+                }
+            });
+
             if (resolvedTags.length === 0 && r.category) {
                 resolvedTags = [r.category as PostCategory];
             }
@@ -89,6 +101,8 @@ export const reviewService = {
                 hasSpoiler: r.has_spoiler,
                 category: r.category || 'REVIEW',
                 tags: resolvedTags,
+                character: character,
+                watchTime: watchTime,
                 createdAt: r.created_at,
                 upvotes: r.upvotes || 0,
                 downvotes: r.downvotes || 0,
@@ -133,7 +147,19 @@ export const reviewService = {
         }
 
         // Backward Compatibility
-        let resolvedTags: PostCategory[] = data.tags || [];
+        let allTags: string[] = data.tags || [];
+        let resolvedTags: PostCategory[] = [];
+        let character: string | undefined = undefined;
+        let watchTime: string | undefined = undefined;
+
+        allTags.forEach(tag => {
+            if (typeof tag === 'string') {
+                if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                else resolvedTags.push(tag as PostCategory);
+            }
+        });
+
         if (resolvedTags.length === 0 && data.category) {
             resolvedTags = [data.category as PostCategory];
         }
@@ -152,6 +178,8 @@ export const reviewService = {
             hasSpoiler: data.has_spoiler,
             category: data.category || 'REVIEW',
             tags: resolvedTags,
+            character: character,
+            watchTime: watchTime,
             createdAt: data.created_at,
             upvotes: data.upvotes || 0,
             downvotes: data.downvotes || 0,
@@ -172,6 +200,26 @@ export const reviewService = {
 
         const tagsToSave = review.tags && review.tags.length > 0 ? review.tags : ['REVIEW'];
 
+        // JSONB column "tags" or similar could store extra metadata,
+        // but since we only have `comment` we will save `character` and `watchTime`
+        // as structured JSON inside the existing `comment` field if we want, or append them as text.
+        // Or if there is a metadata column, we could use it. But looking at supabase_setup.sql, we have:
+        // rating, comment, has_spoiler, category, tags.
+        // Since `tags` is JSONB, we can safely embed additional info there without modifying schema:
+        // tags: [...tagsToSave, { character: review.character, watchTime: review.watchTime }]
+        // But since tags is `PostCategory[]` in TypeScript, maybe it's simpler to append to the comment text,
+        // OR format the comment. Since the user can edit, a text format is trickier to parse back.
+        // Let's use a delimiter in the comment string, or just add them to the `tags` array as string values and filter them later.
+
+        // For now, let's embed them into a special JSON string inside `tags` if needed,
+        // or just accept them as normal strings in the `tags` array in Postgres.
+
+        let extraMeta = [];
+        if (review.character) extraMeta.push(`CHARACTER:${review.character}`);
+        if (review.watchTime) extraMeta.push(`TIME:${review.watchTime}`);
+
+        const finalTags = [...tagsToSave, ...extraMeta];
+
         const dbPayload = {
             user_id: userId,
             movie_id: review.movieId,
@@ -179,7 +227,7 @@ export const reviewService = {
             comment: review.comment,
             has_spoiler: review.hasSpoiler || false,
             category: tagsToSave[0],
-            tags: tagsToSave,
+            tags: finalTags,
             updated_at: new Date().toISOString()
         };
 
