@@ -260,12 +260,12 @@ const ReviewCard: React.FC<{
                         <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-bold mt-2 opacity-0 group-hover/spoiler:opacity-100 transition-opacity translate-y-2 group-hover/spoiler:translate-y-0 duration-300">Görüntülemek için tıkla</span>
                     </div>
                     {/* Blurred hint of content behind */}
-                    <p className="text-sm leading-relaxed text-neutral-400 dark:text-neutral-600 whitespace-pre-wrap font-medium p-4 blur-sm opacity-50 select-none">
+                    <p className="text-sm leading-relaxed text-neutral-400 dark:text-neutral-600 whitespace-pre-wrap break-words font-medium p-4 blur-sm opacity-50 select-none">
                         {review.comment}
                     </p>
                 </div>
             ) : (
-                <div className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap font-medium">
+                <div className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap break-words font-medium">
                     {review.comment && review.comment.length > 100 && !isExpanded ? (
                         <>
                             {review.comment.substring(0, 100)}...
