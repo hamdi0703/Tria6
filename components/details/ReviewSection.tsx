@@ -266,16 +266,7 @@ const ReviewCard: React.FC<{
                 </div>
             ) : (
                 <div className="text-sm leading-relaxed text-neutral-700 dark:text-neutral-300 whitespace-pre-wrap break-words font-medium">
-                    {review.comment && review.comment.length > 100 && !isExpanded ? (
-                        <>
-                            {review.comment.substring(0, 100)}...
-                            <button onClick={() => setIsExpanded(true)} className="ml-2 text-indigo-500 hover:text-indigo-600 font-bold text-xs uppercase tracking-wide">
-                                Devamını Oku
-                            </button>
-                        </>
-                    ) : (
-                        review.comment
-                    )}
+                    {review.comment}
                 </div>
             )}
 
@@ -660,7 +651,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                                 }}
                                 disabled={rating === 0}
                                 placeholder={`"${movieTitle}" hakkında düşüncelerin neler?`}
-                                className={`w-full min-h-[160px] bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl text-lg text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none resize-none leading-relaxed font-medium border focus:bg-white dark:focus:bg-neutral-900 transition-colors ${rating === 0 ? 'border-transparent opacity-50 cursor-not-allowed' : 'border-transparent focus:border-indigo-500/50'}`}
+                                className={`w-full min-h-[160px] break-words whitespace-pre-wrap bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl text-base text-neutral-900 dark:text-white placeholder-neutral-400 dark:placeholder-neutral-600 outline-none resize-y leading-relaxed font-medium border focus:bg-white dark:focus:bg-neutral-900 transition-colors shadow-inner ${rating === 0 ? 'border-transparent opacity-50 cursor-not-allowed' : 'border-transparent focus:border-indigo-500/50 shadow-indigo-500/5'}`}
                             />
                             <div className={`absolute bottom-3 right-3 text-[10px] font-bold px-2 py-1 rounded-md transition-colors ${content.length >= 950 ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-neutral-200 dark:bg-neutral-800 text-neutral-500'}`}>
                                 {content.length} / 1000
