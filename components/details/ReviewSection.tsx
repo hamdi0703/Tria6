@@ -317,6 +317,16 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
   const characterInputRef = useRef<HTMLDivElement>(null);
   useClickOutside(characterInputRef, () => setShowCharacterDropdown(false));
 
+  // Editor Ref for Scrolling
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Focus Editor on Edit
+  useEffect(() => {
+      if (isEditing && editorRef.current) {
+          editorRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+  }, [isEditing]);
+
   // Report States
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [reviewToReport, setReviewToReport] = useState<UserReview | null>(null);
@@ -545,11 +555,11 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
 
         {/* --- MODERN EDITOR --- */}
         {isEditing && (
-            <div className="relative animate-slide-in-up">
-                <div className="bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-neutral-200 dark:border-neutral-800 shadow-2xl overflow-hidden relative z-10">
+            <div className="relative animate-slide-in-up" ref={editorRef}>
+                <div className="bg-white dark:bg-[#0a0a0a] rounded-[2rem] border border-neutral-200 dark:border-neutral-800 shadow-2xl relative z-10">
                     
                     {/* Header: User & Rating */}
-                    <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center gap-6">
+                    <div className="p-6 border-b border-neutral-100 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/30 flex items-center gap-6 rounded-t-[2rem]">
                         <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-indigo-500 to-purple-500 flex-shrink-0">
                             <img src={getAvatarUrl(user?.user_metadata?.avatar_url)} alt="User" className="w-full h-full rounded-full object-cover bg-black" />
                         </div>
@@ -626,7 +636,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                                     className="w-full px-4 py-2.5 rounded-xl bg-neutral-50 dark:bg-neutral-900/50 text-sm font-medium text-neutral-900 dark:text-white placeholder-neutral-400 border border-transparent focus:border-indigo-500/50 outline-none transition-colors"
                                 />
                                 {showCharacterDropdown && cast.length > 0 && (
-                                    <div className="absolute z-50 w-full mt-1 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
+                                    <div className="absolute z-50 w-full bottom-full mb-2 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-2xl max-h-48 overflow-y-auto custom-scrollbar">
                                         {cast
                                             .filter(c => c.character.toLowerCase().includes(characterInput.toLowerCase()) || c.name.toLowerCase().includes(characterInput.toLowerCase()))
                                             .map(c => (
@@ -693,7 +703,7 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                         review={getDisplayReview(ownerReview)} 
                         highlighted={true} 
                         currentUserId={user?.id} 
-                        onEdit={() => { setIsEditing(true); window.scrollTo({top:0, behavior:'smooth'}); }} 
+                        onEdit={() => { setIsEditing(true); }}
                         onDelete={handleDelete} 
                         onReport={handleOpenReport}
                         onVote={handleVote}
@@ -719,7 +729,6 @@ const ReviewSection: React.FC<ReviewSectionProps> = ({ movieId, movieTitle, cast
                                 setWatchTimeInput(review.watchTime || '');
                                 const tags = review.tags && review.tags.length > 0 ? review.tags : (review.category ? [review.category] : ['REVIEW' as PostCategory]);
                                 setSelectedTags(tags);
-                                window.scrollTo({top:0, behavior:'smooth'}); 
                             }} 
                             onDelete={handleDelete} 
                             onReport={handleOpenReport}
