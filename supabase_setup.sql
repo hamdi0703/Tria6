@@ -96,7 +96,8 @@ CREATE TABLE IF NOT EXISTS public.match_votes (
   session_id UUID REFERENCES public.match_sessions(id) ON DELETE CASCADE NOT NULL,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   movie_id INTEGER NOT NULL,
-  vote BOOLEAN NOT NULL,
+  vote_type TEXT NOT NULL,
+  movie_data JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
   UNIQUE(session_id, user_id, movie_id)
 );
@@ -217,11 +218,14 @@ CREATE POLICY "Users can manage own collection items." ON public.collection_item
   EXISTS (SELECT 1 FROM public.user_collections WHERE id = collection_id AND user_id = auth.uid())
 );
 
-CREATE POLICY "Match sessions are viewable by participants." ON public.match_sessions FOR SELECT USING (auth.uid() = host_id OR auth.uid() = guest_id);
-CREATE POLICY "Users can manage own hosted sessions." ON public.match_sessions FOR ALL USING (auth.uid() = host_id);
-CREATE POLICY "Guests can update sessions." ON public.match_sessions FOR UPDATE USING (auth.uid() = guest_id);
+CREATE POLICY "Match sessions are viewable by everyone." ON public.match_sessions FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own hosted sessions." ON public.match_sessions FOR INSERT WITH CHECK (auth.uid() = host_id);
+CREATE POLICY "Users can manage own hosted sessions." ON public.match_sessions FOR UPDATE USING (auth.uid() = host_id) WITH CHECK (auth.uid() = host_id);
+CREATE POLICY "Users can delete own hosted sessions." ON public.match_sessions FOR DELETE USING (auth.uid() = host_id);
+CREATE POLICY "Anyone can join waiting sessions." ON public.match_sessions FOR UPDATE USING (guest_id IS NULL AND status = 'WAITING') WITH CHECK (auth.uid() = guest_id);
+CREATE POLICY "Guests can update sessions they joined." ON public.match_sessions FOR UPDATE USING (auth.uid() = guest_id) WITH CHECK (auth.uid() = guest_id);
 
 CREATE POLICY "Votes are viewable by session participants." ON public.match_votes FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.match_sessions WHERE id = session_id AND (host_id = auth.uid() OR guest_id = auth.uid()))
 );
-CREATE POLICY "Users can manage own votes." ON public.match_votes FOR ALL USING (auth.uid() = user_id);
+CREATE POLICY "Users can manage own votes." ON public.match_votes FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
