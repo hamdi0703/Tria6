@@ -245,28 +245,56 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
             {activeTab === 'COLLECTIONS' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-in-up">
                     {profile.collections && profile.collections.map((col: Collection) => {
-                        const coverMovies = col.movies ? col.movies.slice(0, 3) : [];
+                        // 1. Vitrinden (Top Favorites) film id'lerini al, yoksa boş array
+                        const topFavIds = [
+                            ...(col.topFavoriteMovies || []),
+                            ...(col.topFavoriteShows || [])
+                        ].filter(id => id !== null) as number[];
+
+                        // 2. İlgili filmleri koleksiyondaki filmler içinden bul
+                        const favMovies = topFavIds
+                            .map(id => col.movies?.find(m => m.id === id))
+                            .filter(m => m !== undefined) as Movie[];
                         
+                        // 3. Eğer favori yoksa koleksiyondaki ilk 3 filmi al
+                        let coverMovies = favMovies.slice(0, 3);
+                        if (coverMovies.length === 0) {
+                            coverMovies = col.movies ? col.movies.slice(0, 3) : [];
+                        }
+
+                        // Tasarım için boş slotları belirle (tam 3'e tamamlamak için)
+                        const emptySlots = Math.max(0, 3 - coverMovies.length);
+
                         return (
                             <div key={col.id} className="group bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200 dark:border-neutral-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col md:flex-row gap-4" onClick={() => handleCollectionClick(col)}>
-                                <div 
-                                    className="w-full md:w-24 h-32 md:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-inner relative border border-neutral-100 dark:border-neutral-700"
-                                >
-                                    <div className="flex w-full h-full">
-                                        {coverMovies.map((m: Movie) => (
-                                            <img 
-                                                key={m.id} 
-                                                src={`${BACKDROP_BASE_URL}${m.poster_path}`} 
-                                                className="w-1/3 h-full object-cover" 
-                                                alt=""
-                                            />
+                                {/* COVER IMAGE STACKED LAYOUT */}
+                                <div className="w-full md:w-32 h-32 md:h-24 rounded-xl flex-shrink-0 relative">
+                                    <div className="absolute inset-0 flex rounded-xl overflow-hidden shadow-inner border border-neutral-100 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-800">
+                                        {coverMovies.map((m: Movie, idx) => (
+                                            <div key={m.id} className="h-full flex-1 relative border-r last:border-r-0 border-white/20 dark:border-black/20">
+                                                <img
+                                                    src={`${BACKDROP_BASE_URL}${m.poster_path}`}
+                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                                    alt=""
+                                                />
+                                                <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors"></div>
+                                            </div>
                                         ))}
-                                        {coverMovies.length === 0 && (
-                                            <div className="w-full h-full flex items-center justify-center text-neutral-400">
+
+                                        {/* Empty placeholders to always show 3 splits if partially empty */}
+                                        {[...Array(emptySlots)].map((_, i) => (
+                                            <div key={`empty-${i}`} className="h-full flex-1 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center border-r last:border-r-0 border-white/20 dark:border-black/20">
+                                                 <svg className="w-5 h-5 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            </div>
+                                        ))}
+
+                                        {coverMovies.length === 0 && emptySlots === 3 && (
+                                            <div className="absolute inset-0 flex items-center justify-center text-neutral-400">
                                                 <svg className="w-8 h-8 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                                             </div>
                                         )}
                                     </div>
+                                    <div className="absolute inset-0 ring-1 ring-inset ring-black/5 dark:ring-white/5 rounded-xl pointer-events-none"></div>
                                 </div>
                                 <div className="flex-1 min-w-0 flex flex-col justify-center">
                                     <div className="flex justify-between items-start">

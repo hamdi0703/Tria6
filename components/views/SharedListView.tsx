@@ -116,54 +116,109 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
         </button>
       </div>
       
-      {/* BAŞLIK */}
-      <div className="text-center mb-10 px-4 pt-8 md:pt-0">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-6 border border-indigo-100 dark:border-indigo-800">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-              {isOwner ? 'Sizin Listeniz (Önizleme)' : 'Paylaşılan Koleksiyon'}
+      {/* BAŞLIK & VİTRİN KAPAK */}
+      <div className="mb-12 px-4 pt-8 md:pt-0 max-w-4xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-8">
+          
+          {/* VITRIN KAPAK */}
+          <div className="w-48 h-64 md:w-64 md:h-80 flex-shrink-0 relative">
+              <div className="absolute inset-0 flex rounded-2xl overflow-hidden shadow-2xl border-4 border-white dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-800 rotate-[-2deg] hover:rotate-0 transition-transform duration-500">
+                  {/* Vitrinden (Top Favorites) film id'lerini al */}
+                  {(() => {
+                      const topFavIds = [
+                          ...(sharedList.topFavoriteMovies || []),
+                          ...(sharedList.topFavoriteShows || [])
+                      ].filter(id => id !== null) as number[];
+
+                      const favMovies = topFavIds
+                          .map(id => sharedList.movies?.find(m => m.id === id))
+                          .filter(m => m !== undefined) as Movie[];
+
+                      let coverMovies = favMovies.slice(0, 3);
+                      if (coverMovies.length === 0) {
+                          coverMovies = sharedList.movies ? sharedList.movies.slice(0, 3) : [];
+                      }
+
+                      const emptySlots = Math.max(0, 3 - coverMovies.length);
+
+                      return (
+                          <>
+                              {coverMovies.map((m: Movie) => (
+                                  <div key={m.id} className="h-full flex-1 relative border-r last:border-r-0 border-white/20 dark:border-black/20">
+                                      <img
+                                          src={`https://image.tmdb.org/t/p/w500${m.poster_path}`}
+                                          className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
+                                          alt=""
+                                      />
+                                      <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors"></div>
+                                  </div>
+                              ))}
+
+                              {[...Array(emptySlots)].map((_, i) => (
+                                  <div key={`empty-${i}`} className="h-full flex-1 bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center border-r last:border-r-0 border-white/20 dark:border-black/20">
+                                       <svg className="w-6 h-6 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                  </div>
+                              ))}
+
+                              {coverMovies.length === 0 && emptySlots === 3 && (
+                                  <div className="absolute inset-0 flex items-center justify-center text-neutral-400">
+                                      <svg className="w-12 h-12 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                  </div>
+                              )}
+                          </>
+                      );
+                  })()}
+              </div>
+              <div className="absolute inset-0 ring-1 ring-inset ring-black/10 dark:ring-white/10 rounded-2xl pointer-events-none rotate-[-2deg]"></div>
           </div>
-          
-          <h1 className="text-3xl md:text-5xl font-black text-neutral-900 dark:text-white mb-4 tracking-tight leading-tight">
-              {sharedList.name}
-          </h1>
-          
-          {sharedList.description && (
-              <p className="text-sm md:text-base text-neutral-500 max-w-lg mx-auto mb-4 italic">
-                  "{sharedList.description}"
+
+          <div className="text-center md:text-left flex-1 py-4">
+              <div className="inline-flex items-center justify-center md:justify-start gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-4 border border-indigo-100 dark:border-indigo-800">
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                  {isOwner ? 'Sizin Listeniz (Önizleme)' : 'Paylaşılan Koleksiyon'}
+              </div>
+
+              <h1 className="text-3xl md:text-5xl font-black text-neutral-900 dark:text-white mb-4 tracking-tight leading-tight">
+                  {sharedList.name}
+              </h1>
+
+              {sharedList.description && (
+                  <p className="text-sm md:text-base text-neutral-500 max-w-xl mx-auto mb-6 italic">
+                      "{sharedList.description}"
+                  </p>
+              )}
+
+              {/* SAHİBİ İÇİN KONTROL BUTONU */}
+              {isOwner && (
+                  <div className="mb-8 animate-pulse">
+                      <button
+                        onClick={onBack}
+                        className="inline-flex items-center gap-2 px-5 py-2 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform"
+                      >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                          Listeyi Yönet
+                      </button>
+                  </div>
+              )}
+
+              <div className="flex flex-col items-center gap-1 mb-6 bg-white dark:bg-neutral-900 w-fit mx-auto px-6 py-3 rounded-2xl border border-neutral-100 dark:border-neutral-800 shadow-sm">
+                  <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Hazırlayan</span>
+                  <span className="text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">
+                      {sharedList.owner || 'Anonim'}
+                  </span>
+              </div>
+
+              {!sharedList.isPublic && isOwner && (
+                  <div className="max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs p-3 rounded-lg border border-yellow-200 dark:border-yellow-800 mb-6">
+                      Bu liste şu an <strong>Gizli</strong>. Sadece siz görebilirsiniz. Başkalarıyla paylaşmak için ayarlardan "Herkese Açık" yapın.
+                  </div>
+              )}
+
+              <p className="text-neutral-700 dark:text-neutral-300 max-w-lg mx-auto text-base md:text-lg leading-relaxed font-medium opacity-90 mb-8">
+                 Bu koleksiyonda toplam <strong className="text-indigo-500">{allMovies.length}</strong> yapım bulunmaktadır.
               </p>
-          )}
-
-          {/* SAHİBİ İÇİN KONTROL BUTONU */}
-          {isOwner && (
-              <div className="mb-6 animate-pulse">
-                  <button 
-                    onClick={onBack}
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-neutral-900 dark:bg-white text-white dark:text-black rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform"
-                  >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Listeyi Yönet
-                  </button>
-              </div>
-          )}
-          
-          <div className="flex flex-col items-center gap-1 mb-6">
-              <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">Hazırlayan</span>
-              <span className="text-lg font-bold text-indigo-600 dark:text-indigo-300">
-                  {sharedList.owner || 'Anonim'}
-              </span>
           </div>
-
-          {!sharedList.isPublic && isOwner && (
-              <div className="max-w-md mx-auto bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 text-xs p-3 rounded-lg border border-yellow-200 dark:border-yellow-800 mb-6">
-                  Bu liste şu an <strong>Gizli</strong>. Sadece siz görebilirsiniz. Başkalarıyla paylaşmak için ayarlardan "Herkese Açık" yapın.
-              </div>
-          )}
-          
-          <p className="text-neutral-700 dark:text-neutral-300 max-w-lg mx-auto text-base md:text-lg leading-relaxed font-medium opacity-90">
-             Bu koleksiyonda toplam <strong>{allMovies.length}</strong> yapım bulunmaktadır.
-          </p>
       </div>
 
       <MediaTypeNavbar 
