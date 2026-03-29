@@ -198,8 +198,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
             showToast('Kayıt başarılı! Oturum açıldı.', 'success');
         } else {
-            // Eğer session yoksa, email doğrulaması gerekiyordur
-            showToast('Kayıt başarılı! Lütfen e-posta adresinize gönderilen doğrulama bağlantısına tıklayarak hesabınızı onaylayın.', 'info');
+            // Eğer e-posta doğrulaması kapalıysa ancak session dönmediyse (nadir durum)
+            // veya başka bir nedenle gecikme varsa.
+            showToast('Kayıt başarılı! Giriş yapabilirsiniz.', 'success');
         }
     } catch (error: any) {
         if (error.message === 'Failed to fetch') {
