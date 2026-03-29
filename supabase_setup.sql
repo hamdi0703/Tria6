@@ -220,9 +220,10 @@ CREATE POLICY "Users can manage own collection items." ON public.collection_item
 
 CREATE POLICY "Match sessions are viewable by everyone." ON public.match_sessions FOR SELECT USING (true);
 CREATE POLICY "Users can insert their own hosted sessions." ON public.match_sessions FOR INSERT WITH CHECK (auth.uid() = host_id);
-CREATE POLICY "Users can manage own hosted sessions." ON public.match_sessions FOR UPDATE USING (auth.uid() = host_id);
+CREATE POLICY "Users can manage own hosted sessions." ON public.match_sessions FOR UPDATE USING (auth.uid() = host_id) WITH CHECK (auth.uid() = host_id);
 CREATE POLICY "Users can delete own hosted sessions." ON public.match_sessions FOR DELETE USING (auth.uid() = host_id);
-CREATE POLICY "Guests can update sessions." ON public.match_sessions FOR UPDATE USING (auth.uid() = guest_id);
+CREATE POLICY "Anyone can join waiting sessions." ON public.match_sessions FOR UPDATE USING (guest_id IS NULL AND status = 'WAITING') WITH CHECK (auth.uid() = guest_id);
+CREATE POLICY "Guests can update sessions they joined." ON public.match_sessions FOR UPDATE USING (auth.uid() = guest_id) WITH CHECK (auth.uid() = guest_id);
 
 CREATE POLICY "Votes are viewable by session participants." ON public.match_votes FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.match_sessions WHERE id = session_id AND (host_id = auth.uid() OR guest_id = auth.uid()))
