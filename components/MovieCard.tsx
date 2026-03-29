@@ -197,6 +197,27 @@ const MovieCard: React.FC<MovieCardProps> = ({
             </div>
         </div>
       </div>
+
+      {/* 8. OWNER REVIEW BOTTOM SNIPPET */}
+      {ownerReview?.comment && (
+        <div className="mt-2 w-full px-2 py-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg text-left relative overflow-hidden group/review hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+            <div className="absolute top-1 left-1.5 text-indigo-500/20 dark:text-indigo-400/20">
+                <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11C14.017 11.5523 13.5693 12 13.017 12H12.017V5H22.017V15C22.017 18.3137 19.3307 21 16.017 21H14.017ZM5.0166 21L5.0166 18C5.0166 16.8954 5.91203 16 7.0166 16H10.0166C10.5689 16 11.0166 15.5523 11.0166 15V9C11.0166 8.44772 10.5689 8 10.0166 8H6.0166C5.46432 8 5.0166 8.44772 5.0166 9V11C5.0166 11.5523 4.56889 12 4.0166 12H3.0166V5H13.0166V15C13.0166 18.3137 10.3303 21 7.0166 21H5.0166Z" /></svg>
+            </div>
+            {ownerReview?.rating && (
+                <div className="flex items-center gap-1 mb-0.5 ml-2">
+                    <span className="text-[9px] font-bold text-neutral-700 dark:text-neutral-300">Puanım:</span>
+                    <div className="flex items-center bg-yellow-500/10 px-1 py-0.5 rounded text-[8px] font-bold text-yellow-600 dark:text-yellow-500">
+                        {ownerReview.rating}
+                        <svg className="w-2 h-2 ml-0.5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                    </div>
+                </div>
+            )}
+            <p className={`text-[9px] text-neutral-600 dark:text-neutral-400 font-medium leading-tight line-clamp-2 relative z-10 ml-2 italic ${ownerReview?.hasSpoiler ? 'text-red-500 dark:text-red-400 not-italic' : ''}`}>
+                {ownerReview?.hasSpoiler ? '⚠️ Spoiler içeriyor.' : `"${ownerReview.comment}"`}
+            </p>
+        </div>
+      )}
     </div>
   );
 };

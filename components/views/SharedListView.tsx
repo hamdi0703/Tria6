@@ -1,10 +1,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { useCollectionContext } from '../../context/CollectionContext';
-import { Movie, Genre, MediaType } from '../../types';
+import { Movie, Genre, MediaType, UserReview } from '../../types';
 import MovieCard from '../MovieCard';
 import { useAuth } from '../../context/AuthContext';
-import MediaTypeNavbar from '../MediaTypeNavbar';
+import { supabase } from '../../services/supabaseClient';
 import CollectionAnalytics from '../analytics/CollectionAnalytics'; 
 import TopFavorites from '../dashboard/TopFavorites';
 import ErrorBoundary from '../ErrorBoundary';
@@ -28,33 +28,66 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
   const { user } = useAuth();
   const { theme, toggleTheme } = useTheme(); 
   
-  const [activeTab, setActiveTab] = useState<TabOption>('movie');
+  const [ownerReviews, setOwnerReviews] = useState<Record<number, UserReview>>({});
 
   const allMovies = useMemo(() => sharedList?.movies || [], [sharedList]);
 
-  const filteredMovies = useMemo(() => {
-      return allMovies.filter(m => {
-          const isTv = !!(m.name || m.first_air_date);
-          return activeTab === 'tv' ? isTv : !isTv;
-      });
-  }, [allMovies, activeTab]);
+  // Separate movies and TV shows
+  const moviesList = useMemo(() => allMovies.filter(m => !(m.name || m.first_air_date)), [allMovies]);
+  const tvShowsList = useMemo(() => allMovies.filter(m => !!(m.name || m.first_air_date)), [allMovies]);
 
-  const showcaseFavorites = useMemo(() => {
-      if (!sharedList) return [null, null, null, null, null];
-      
-      return activeTab === 'movie' 
-        ? (sharedList.topFavoriteMovies || [null, null, null, null, null])
-        : (sharedList.topFavoriteShows || [null, null, null, null, null]);
-  }, [sharedList, activeTab]);
+  // Showcase logic
+  const showcaseFavoriteMovies = useMemo(() => sharedList?.topFavoriteMovies || [null, null, null, null, null], [sharedList]);
+  const showcaseFavoriteShows = useMemo(() => sharedList?.topFavoriteShows || [null, null, null, null, null], [sharedList]);
 
-  const hasShowcaseContent = useMemo(() => {
-      return showcaseFavorites.some(id => id !== null);
-  }, [showcaseFavorites]);
+  const hasShowcaseMoviesContent = useMemo(() => showcaseFavoriteMovies.some(id => id !== null), [showcaseFavoriteMovies]);
+  const hasShowcaseShowsContent = useMemo(() => showcaseFavoriteShows.some(id => id !== null), [showcaseFavoriteShows]);
 
   const isOwner = useMemo(() => {
       if (!user || !sharedList) return false;
       return user.id === sharedList.ownerId;
   }, [user, sharedList]);
+
+  // Fetch owner reviews
+  React.useEffect(() => {
+      if (sharedList?.ownerId && sharedList.movies && sharedList.movies.length > 0) {
+          const fetchOwnerReviews = async () => {
+              if (sharedList.ownerId?.startsWith('mock-')) return;
+
+              const movieIds = sharedList.movies.map(m => m.id);
+
+              try {
+                  const { data, error } = await supabase
+                    .from('reviews')
+                    .select('*')
+                    .eq('user_id', sharedList.ownerId)
+                    .in('movie_id', movieIds);
+
+                  if (!error && data) {
+                      const mappedReviews: Record<number, UserReview> = {};
+                      data.forEach((r: any) => {
+                          mappedReviews[r.movie_id] = {
+                              id: r.id,
+                              movieId: r.movie_id,
+                              rating: r.rating,
+                              comment: r.comment,
+                              hasSpoiler: r.has_spoiler,
+                              createdAt: r.created_at,
+                              upvotes: r.upvotes || 0,
+                              downvotes: r.downvotes || 0,
+                              tags: r.tags || [],
+                              category: r.category
+                          };
+                      });
+                      setOwnerReviews(mappedReviews);
+                  }
+              } catch (err) {
+                  console.warn("Could not fetch owner reviews:", err);
+              }
+          };
+          fetchOwnerReviews();
+      }
+  }, [sharedList]);
 
   if (!sharedList) {
     return (
@@ -166,57 +199,108 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
           </p>
       </div>
 
-      <MediaTypeNavbar 
-         activeType={activeTab} 
-         onChange={(t) => setActiveTab(t)} 
-      />
+      {allMovies.length > 0 ? (
+          <div className="flex flex-col gap-16">
 
-      {filteredMovies.length > 0 ? (
-          <>
-            {/* SADECE EĞER VİTRİN DOLUYSA GÖSTER */}
-            {hasShowcaseContent && (
-                <div className="mb-12">
-                    <TopFavorites 
-                        favorites={showcaseFavorites}
-                        collectionMovies={allMovies} // FIX: Filtrelenmemiş tam listeyi gönderiyoruz ki favoriler kaybolmasın
-                        onSlotClick={() => {}} 
-                        type={activeTab}
-                        readOnly={true} 
-                    />
-                </div>
+            {/* --- MOVIES SECTION --- */}
+            {moviesList.length > 0 && (
+                <section>
+                    {hasShowcaseMoviesContent && (
+                        <div className="mb-12">
+                            <TopFavorites
+                                favorites={showcaseFavoriteMovies}
+                                collectionMovies={allMovies}
+                                onSlotClick={() => {}}
+                                type="movie"
+                                readOnly={true}
+                            />
+                        </div>
+                    )}
+
+                    <div className="mb-12">
+                        <ErrorBoundary>
+                            <CollectionAnalytics
+                                movies={moviesList}
+                                genres={genres}
+                            />
+                        </ErrorBoundary>
+                    </div>
+
+                    <div className="mb-8">
+                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 px-1 flex items-center gap-2">
+                            <span className="w-1 h-6 rounded-full bg-indigo-500"></span>
+                            Tüm Filmler
+                        </h3>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
+                            {moviesList.map((movie) => (
+                                <MovieCard
+                                    key={`movie-${movie.id}`}
+                                    movie={movie}
+                                    isSelected={checkIsSelected(movie.id)}
+                                    onToggleSelect={toggleMovieInCollection}
+                                    onClick={onSelectMovie}
+                                    allGenres={genres}
+                                    mediaType="movie"
+                                    hideSelection={true}
+                                    ownerReview={ownerReviews[movie.id]}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </section>
             )}
 
-            <div className="mb-12">
-                 <ErrorBoundary>
-                    <CollectionAnalytics 
-                        movies={filteredMovies} 
-                        genres={genres}
-                    />
-                 </ErrorBoundary>
-            </div>
+            {/* --- TV SHOWS SECTION --- */}
+            {tvShowsList.length > 0 && (
+                <section>
+                    {hasShowcaseShowsContent && (
+                        <div className="mb-12">
+                            <TopFavorites
+                                favorites={showcaseFavoriteShows}
+                                collectionMovies={allMovies}
+                                onSlotClick={() => {}}
+                                type="tv"
+                                readOnly={true}
+                            />
+                        </div>
+                    )}
 
-            <div className="mb-8">
-                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 px-1 flex items-center gap-2">
-                    <span className={`w-1 h-6 rounded-full ${activeTab === 'movie' ? 'bg-indigo-500' : 'bg-purple-500'}`}></span>
-                    Tüm {activeTab === 'movie' ? 'Filmler' : 'Diziler'}
-                </h3>
+                    <div className="mb-12">
+                        <ErrorBoundary>
+                            <CollectionAnalytics
+                                movies={tvShowsList}
+                                genres={genres}
+                            />
+                        </ErrorBoundary>
+                    </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
-                    {filteredMovies.map((movie) => (
-                        <MovieCard 
-                            key={movie.id}
-                            movie={movie} 
-                            isSelected={checkIsSelected(movie.id)}
-                            onToggleSelect={toggleMovieInCollection}
-                            onClick={onSelectMovie} 
-                            allGenres={genres}
-                            mediaType={activeTab}
-                            hideSelection={true} // KALP GİZLE
-                        />
-                    ))}
-                </div>
-            </div>
-          </>
+                    <div className="mb-8">
+                        <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 px-1 flex items-center gap-2">
+                            <span className="w-1 h-6 rounded-full bg-purple-500"></span>
+                            Tüm Diziler
+                        </h3>
+
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
+                            {tvShowsList.map((movie) => (
+                                <MovieCard
+                                    key={`tv-${movie.id}`}
+                                    movie={movie}
+                                    isSelected={checkIsSelected(movie.id)}
+                                    onToggleSelect={toggleMovieInCollection}
+                                    onClick={onSelectMovie}
+                                    allGenres={genres}
+                                    mediaType="tv"
+                                    hideSelection={true}
+                                    ownerReview={ownerReviews[movie.id]}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            )}
+
+          </div>
       ) : (
           <div className="flex flex-col items-center justify-center py-20 text-neutral-500 bg-neutral-50 dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 mx-4">
              <div className="w-16 h-16 bg-neutral-200 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
@@ -224,7 +308,7 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
              </div>
-             <p className="font-medium">Bu listede hiç {activeTab === 'movie' ? 'film' : 'dizi'} bulunmuyor.</p>
+             <p className="font-medium">Bu listede hiç film veya dizi bulunmuyor.</p>
           </div>
       )}
 
