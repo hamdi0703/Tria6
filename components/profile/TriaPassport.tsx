@@ -41,13 +41,19 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
   const persona = useMemo(() => {
     let personaId = '1';
     if (avatarUrl) {
-        const match = avatarUrl.match(/seed=([^&]+)/);
-        if (match) {
-            const seed = match[1];
-            const found = AVATAR_PERSONAS.find(p => p.seed === seed);
-            if (found) {
-                personaId = found.id;
+        try {
+            // Decode URI component to handle encoded ampersands or spaces
+            const decodedUrl = decodeURIComponent(avatarUrl);
+            const match = decodedUrl.match(/seed=([^&]+)/);
+            if (match) {
+                const seed = match[1];
+                const found = AVATAR_PERSONAS.find(p => p.seed === seed);
+                if (found) {
+                    personaId = found.id;
+                }
             }
+        } catch (e) {
+            console.error("Failed to decode avatarUrl", e);
         }
     }
     return getAvatarPersona(personaId);
@@ -99,9 +105,9 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
         {/* --- STATISTICS ROW (3-Column Grid) --- */}
         <div className="grid grid-cols-3 gap-2 mb-10 border-t border-b border-white/5 py-6">
             
-            {/* Column 1: Total Watched */}
+            {/* Column 1: Total Watched / Icerik */}
             <div className="flex flex-col items-center gap-1">
-                <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Watched</span>
+                <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">İçerik</span>
                 <div className="flex items-baseline gap-1">
                     <span className="text-xl font-bold text-white">{stats.totalWatched}</span>
                 </div>
@@ -109,7 +115,7 @@ const TriaPassport: React.FC<TriaPassportProps> = ({
 
             {/* Column 2: Lists Created */}
             <div className="flex flex-col items-center gap-1 border-l border-r border-white/5">
-                <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Lists</span>
+                <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Liste</span>
                 <div className="flex items-baseline gap-1">
                     <span className="text-xl font-bold text-white">{stats.listsCreated}</span>
                 </div>

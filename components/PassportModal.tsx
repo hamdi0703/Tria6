@@ -45,8 +45,12 @@ const PassportModal: React.FC<PassportModalProps> = ({ onClose }) => {
     const joinDate = new Date(user.created_at || Date.now()).getFullYear().toString();
 
     // 2. Statistics Row
-    // Column 1: "Total Watched" -> Count of 'id' from reviews (keys of reviews object)
-    const totalWatched = Object.keys(reviews).length;
+    // Column 1: "Total Watched/İçerik" -> Count of unique items across all collections
+    const uniqueItems = new Set<number>();
+    collections.forEach(c => {
+        c.movies?.forEach(m => uniqueItems.add(m.id));
+    });
+    const totalWatched = uniqueItems.size;
 
     // Column 2: "Lists Created" -> Count of collections
     const listsCreated = collections.length;
@@ -58,54 +62,59 @@ const PassportModal: React.FC<PassportModalProps> = ({ onClose }) => {
         : '-';
 
     // 3. Showcase Section (Top Favorites)
-    // Logic: Look for "Favorilerim" list or the active collection.
-    // We need to map the IDs in `topFavoriteMovies` to actual Poster URLs.
+    // Logic: Pull from Vitrin (Showcase) which is stored in collections.
+    // We want the first 3 movies from topFavoriteMovies and the first 1 show from topFavoriteShows
+    // across all collections (typically stored in the first/main collection).
     const favoritePosters: string[] = [];
     
-    // Prioritize the default "Favorilerim" or the first collection
-    const sourceCollection = collections.find(c => c.name === 'Favorilerim') || collections[0];
+    let showcaseMovies: number[] = [];
+    let showcaseShows: number[] = [];
 
-    if (sourceCollection) {
-        // Merge movie and show favorites slots
-        const allFavIds = [
-            ...(sourceCollection.topFavoriteMovies || []),
-            ...(sourceCollection.topFavoriteShows || [])
-        ].filter(id => id !== null) as number[];
+    // Collect all showcase items from all user collections
+    collections.forEach(c => {
+        if (c.topFavoriteMovies) {
+            showcaseMovies = [...showcaseMovies, ...c.topFavoriteMovies.filter(id => id !== null) as number[]];
+        }
+        if (c.topFavoriteShows) {
+            showcaseShows = [...showcaseShows, ...c.topFavoriteShows.filter(id => id !== null) as number[]];
+        }
+    });
 
-        // Find the movie objects in ANY collection to get the poster path
-        // (Since we don't fetch movie details individually here, we look in loaded collections)
-        const allLoadedMovies = collections.flatMap(c => c.movies);
-        const movieMap = new Map<number, Movie>();
-        allLoadedMovies.forEach(m => movieMap.set(m.id, m));
+    // Remove duplicates just in case
+    showcaseMovies = Array.from(new Set(showcaseMovies));
+    showcaseShows = Array.from(new Set(showcaseShows));
 
-        allFavIds.slice(0, 4).forEach(id => {
-            const movie = movieMap.get(id);
-            if (movie && movie.poster_path) {
-                favoritePosters.push(`${IMAGE_BASE_URL}${movie.poster_path}`);
-            }
-        });
+    // We want 4 slots: Take up to 3 movies, and up to 1 show to fill 4 slots.
+    // If not enough movies, fill with more shows, and vice versa.
+    const selectedIds: number[] = [];
+
+    // First, try to add up to 3 movies
+    const moviesToAdd = Math.min(3, showcaseMovies.length);
+    for (let i = 0; i < moviesToAdd; i++) {
+        selectedIds.push(showcaseMovies[i]);
     }
 
-    // Fallback: If no favorites set, use high rated movies from reviews
-    if (favoritePosters.length < 4) {
-        const remainingSlots = 4 - favoritePosters.length;
-        const highlyRated = (Object.values(reviews) as UserReview[])
-            .filter(r => r.rating >= 8)
-            .sort((a, b) => b.rating - a.rating)
-            .slice(0, remainingSlots);
-        
-        // Find movies for these reviews
-        const allLoadedMovies = collections.flatMap(c => c.movies);
-        const movieMap = new Map<number, Movie>();
-        allLoadedMovies.forEach(m => movieMap.set(m.id, m));
-
-        highlyRated.forEach(r => {
-            const movie = movieMap.get(r.movieId);
-            if (movie && movie.poster_path && !favoritePosters.includes(`${IMAGE_BASE_URL}${movie.poster_path}`)) {
-                favoritePosters.push(`${IMAGE_BASE_URL}${movie.poster_path}`);
-            }
-        });
+    // Then, try to add shows to reach 4 total
+    for (let i = 0; i < showcaseShows.length && selectedIds.length < 4; i++) {
+        selectedIds.push(showcaseShows[i]);
     }
+
+    // If we still don't have 4 and there are more movies, add them
+    for (let i = moviesToAdd; i < showcaseMovies.length && selectedIds.length < 4; i++) {
+        selectedIds.push(showcaseMovies[i]);
+    }
+
+    // Create a map of all known movies to look up poster URLs
+    const allLoadedMovies = collections.flatMap(c => c.movies);
+    const movieMap = new Map<number, Movie>();
+    allLoadedMovies.forEach(m => movieMap.set(m.id, m));
+
+    selectedIds.forEach(id => {
+        const movie = movieMap.get(id);
+        if (movie && movie.poster_path) {
+            favoritePosters.push(`${IMAGE_BASE_URL}${movie.poster_path}`);
+        }
+    });
 
     return {
         username,

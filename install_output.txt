@@ -1,0 +1,22 @@
+[25.86ms] ".env"
+bun install v1.2.14 (6a363a38)
+Resolving dependencies
+Resolved, downloaded and extracted [254]
+Saved lockfile
+
++ @types/react@18.3.28
++ @types/react-dom@18.3.7
++ @vitejs/plugin-react@4.7.0
++ autoprefixer@10.4.27
++ postcss@8.5.8
++ tailwindcss@3.4.19 (v4.2.2 available)
++ typescript@5.9.3
++ vite@5.4.21
++ @supabase/supabase-js@2.100.0
++ @tanstack/react-query@5.95.2
++ chart.js@4.5.1
++ react@18.3.1
++ react-chartjs-2@5.3.1
++ react-dom@18.3.1
+
+151 packages installed [30.27s]
