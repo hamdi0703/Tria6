@@ -82,6 +82,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
               
               if (error) throw error;
 
+              if (data && data.length > 0) {
                   const mapped: Collection[] = data.map((d: any) => {
                       let itemCount = 0;
                       if (Array.isArray(d.collection_items) && d.collection_items.length > 0) {
@@ -106,7 +107,6 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
                           ownerId: d.user_id
                       };
                   });
-                  }));
                   setCollections(mapped);
                   
                   // LocalStorage'dan son ID'yi al ama güvenli mi kontrol et (UUID olmalı)

@@ -173,3 +173,4 @@ $ vite
       at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:11046:23)
       at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:9837:18)
       at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/app/node_modules/@babel/parser/lib/index.js:10899:61)
+10:41:01 PM [vite] hmr update /context/CollectionContext.tsx, /index.css
