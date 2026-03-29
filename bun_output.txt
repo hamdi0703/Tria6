@@ -5,3 +5,171 @@ $ vite
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://192.168.0.2:3000/
 9:15:03 PM [vite] page reload components/profile/TriaPassport.tsx
+9:29:36 PM [vite] hmr update /index.css, /context/CollectionContext.tsx
+9:30:26 PM [vite] hmr update /context/CollectionContext.tsx, /index.css
+9:31:37 PM [vite] page reload hooks/useProfileData.ts
+9:32:00 PM [vite] page reload hooks/useProfileData.ts
+9:32:27 PM [vite] page reload hooks/useProfileData.ts
+9:32:54 PM [vite] page reload hooks/useProfileData.ts
+9:35:17 PM [vite] page reload components/PassportModal.tsx
+10:21:22 PM [vite] Pre-transform error: /app/context/CollectionContext.tsx: Missing catch or finally clause. (79:10)
+
+  77 |           initLock.current = user.id;
+  78 |
+> 79 |           try {
+     |           ^
+  80 |               // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+  82 |
+10:21:22 PM [vite] Pre-transform error: /app/context/CollectionContext.tsx: Missing catch or finally clause. (79:10)
+
+  77 |           initLock.current = user.id;
+  78 |
+> 79 |           try {
+     |           ^
+  80 |               // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+  82 |
+10:21:22 PM [vite] Pre-transform error: /app/context/CollectionContext.tsx: Missing catch or finally clause. (79:10)
+
+  77 |           initLock.current = user.id;
+  78 |
+> 79 |           try {
+     |           ^
+  80 |               // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+  82 |
+10:21:23 PM [vite] Internal server error: /app/context/CollectionContext.tsx: Missing catch or finally clause. (79:10)
+
+  77 |           initLock.current = user.id;
+  78 |
+> 79 |           try {
+     |           ^
+  80 |               // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+  82 |
+  Plugin: vite:react-babel
+  File: /app/context/CollectionContext.tsx:79:10
+  77 |            initLock.current = user.id;
+  78 |
+  79 |            try {
+     |            ^
+  80 |                // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |                const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+      at constructor (/app/node_modules/@babel/parser/lib/index.js:365:19)
+      at TypeScriptParserMixin.raise (/app/node_modules/@babel/parser/lib/index.js:6599:19)
+      at TypeScriptParserMixin.parseTryStatement (/app/node_modules/@babel/parser/lib/index.js:13224:12)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:12804:21)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:9508:18)
+      at TypeScriptParserMixin.parseStatementLike (/app/node_modules/@babel/parser/lib/index.js:12767:17)
+      at TypeScriptParserMixin.parseStatementListItem (/app/node_modules/@babel/parser/lib/index.js:12747:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/app/node_modules/@babel/parser/lib/index.js:13316:61)
+      at TypeScriptParserMixin.parseBlockBody (/app/node_modules/@babel/parser/lib/index.js:13309:10)
+      at TypeScriptParserMixin.parseBlock (/app/node_modules/@babel/parser/lib/index.js:13297:10)
+      at TypeScriptParserMixin.parseFunctionBody (/app/node_modules/@babel/parser/lib/index.js:12100:24)
+      at TypeScriptParserMixin.parseArrowExpression (/app/node_modules/@babel/parser/lib/index.js:12075:10)
+      at TypeScriptParserMixin.parseAsyncArrowFromCallExpression (/app/node_modules/@babel/parser/lib/index.js:11264:10)
+      at TypeScriptParserMixin.parseAsyncArrowFromCallExpression (/app/node_modules/@babel/parser/lib/index.js:9766:18)
+      at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (/app/node_modules/@babel/parser/lib/index.js:11194:27)
+      at TypeScriptParserMixin.parseSubscript (/app/node_modules/@babel/parser/lib/index.js:11120:19)
+      at TypeScriptParserMixin.parseSubscript (/app/node_modules/@babel/parser/lib/index.js:9272:18)
+      at TypeScriptParserMixin.parseSubscripts (/app/node_modules/@babel/parser/lib/index.js:11094:19)
+      at TypeScriptParserMixin.parseExprSubscripts (/app/node_modules/@babel/parser/lib/index.js:11085:17)
+      at TypeScriptParserMixin.parseUpdate (/app/node_modules/@babel/parser/lib/index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/app/node_modules/@babel/parser/lib/index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (/app/node_modules/@babel/parser/lib/index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (/app/node_modules/@babel/parser/lib/index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/app/node_modules/@babel/parser/lib/index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (/app/node_modules/@babel/parser/lib/index.js:9786:20)
+      at /app/node_modules/@babel/parser/lib/index.js:10800:39
+      at TypeScriptParserMixin.allowInAnd (/app/node_modules/@babel/parser/lib/index.js:12421:16)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (/app/node_modules/@babel/parser/lib/index.js:10800:17)
+      at TypeScriptParserMixin.parseVar (/app/node_modules/@babel/parser/lib/index.js:13384:91)
+      at TypeScriptParserMixin.parseVarStatement (/app/node_modules/@babel/parser/lib/index.js:13230:10)
+      at TypeScriptParserMixin.parseVarStatement (/app/node_modules/@babel/parser/lib/index.js:9408:31)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:12851:23)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:9508:18)
+      at TypeScriptParserMixin.parseStatementLike (/app/node_modules/@babel/parser/lib/index.js:12767:17)
+      at TypeScriptParserMixin.parseStatementListItem (/app/node_modules/@babel/parser/lib/index.js:12747:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/app/node_modules/@babel/parser/lib/index.js:13316:61)
+      at TypeScriptParserMixin.parseBlockBody (/app/node_modules/@babel/parser/lib/index.js:13309:10)
+      at TypeScriptParserMixin.parseBlock (/app/node_modules/@babel/parser/lib/index.js:13297:10)
+      at TypeScriptParserMixin.parseFunctionBody (/app/node_modules/@babel/parser/lib/index.js:12100:24)
+      at TypeScriptParserMixin.parseArrowExpression (/app/node_modules/@babel/parser/lib/index.js:12075:10)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (/app/node_modules/@babel/parser/lib/index.js:11687:12)
+      at TypeScriptParserMixin.parseExprAtom (/app/node_modules/@babel/parser/lib/index.js:11331:23)
+      at TypeScriptParserMixin.parseExprAtom (/app/node_modules/@babel/parser/lib/index.js:4764:20)
+      at TypeScriptParserMixin.parseExprSubscripts (/app/node_modules/@babel/parser/lib/index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (/app/node_modules/@babel/parser/lib/index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/app/node_modules/@babel/parser/lib/index.js:10899:61)
+10:21:24 PM [vite] Internal server error: /app/context/CollectionContext.tsx: Missing catch or finally clause. (79:10)
+
+  77 |           initLock.current = user.id;
+  78 |
+> 79 |           try {
+     |           ^
+  80 |               // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+  82 |
+  Plugin: vite:react-babel
+  File: /app/context/CollectionContext.tsx:79:10
+  77 |            initLock.current = user.id;
+  78 |
+  79 |            try {
+     |            ^
+  80 |                // SADECE METADATA ÇEKİYORUZ (Hızlı)
+  81 |                const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
+      at constructor (/app/node_modules/@babel/parser/lib/index.js:365:19)
+      at TypeScriptParserMixin.raise (/app/node_modules/@babel/parser/lib/index.js:6599:19)
+      at TypeScriptParserMixin.parseTryStatement (/app/node_modules/@babel/parser/lib/index.js:13224:12)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:12804:21)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:9508:18)
+      at TypeScriptParserMixin.parseStatementLike (/app/node_modules/@babel/parser/lib/index.js:12767:17)
+      at TypeScriptParserMixin.parseStatementListItem (/app/node_modules/@babel/parser/lib/index.js:12747:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/app/node_modules/@babel/parser/lib/index.js:13316:61)
+      at TypeScriptParserMixin.parseBlockBody (/app/node_modules/@babel/parser/lib/index.js:13309:10)
+      at TypeScriptParserMixin.parseBlock (/app/node_modules/@babel/parser/lib/index.js:13297:10)
+      at TypeScriptParserMixin.parseFunctionBody (/app/node_modules/@babel/parser/lib/index.js:12100:24)
+      at TypeScriptParserMixin.parseArrowExpression (/app/node_modules/@babel/parser/lib/index.js:12075:10)
+      at TypeScriptParserMixin.parseAsyncArrowFromCallExpression (/app/node_modules/@babel/parser/lib/index.js:11264:10)
+      at TypeScriptParserMixin.parseAsyncArrowFromCallExpression (/app/node_modules/@babel/parser/lib/index.js:9766:18)
+      at TypeScriptParserMixin.parseCoverCallAndAsyncArrowHead (/app/node_modules/@babel/parser/lib/index.js:11194:27)
+      at TypeScriptParserMixin.parseSubscript (/app/node_modules/@babel/parser/lib/index.js:11120:19)
+      at TypeScriptParserMixin.parseSubscript (/app/node_modules/@babel/parser/lib/index.js:9272:18)
+      at TypeScriptParserMixin.parseSubscripts (/app/node_modules/@babel/parser/lib/index.js:11094:19)
+      at TypeScriptParserMixin.parseExprSubscripts (/app/node_modules/@babel/parser/lib/index.js:11085:17)
+      at TypeScriptParserMixin.parseUpdate (/app/node_modules/@babel/parser/lib/index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/app/node_modules/@babel/parser/lib/index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (/app/node_modules/@babel/parser/lib/index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (/app/node_modules/@babel/parser/lib/index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/app/node_modules/@babel/parser/lib/index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (/app/node_modules/@babel/parser/lib/index.js:9786:20)
+      at /app/node_modules/@babel/parser/lib/index.js:10800:39
+      at TypeScriptParserMixin.allowInAnd (/app/node_modules/@babel/parser/lib/index.js:12421:16)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (/app/node_modules/@babel/parser/lib/index.js:10800:17)
+      at TypeScriptParserMixin.parseVar (/app/node_modules/@babel/parser/lib/index.js:13384:91)
+      at TypeScriptParserMixin.parseVarStatement (/app/node_modules/@babel/parser/lib/index.js:13230:10)
+      at TypeScriptParserMixin.parseVarStatement (/app/node_modules/@babel/parser/lib/index.js:9408:31)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:12851:23)
+      at TypeScriptParserMixin.parseStatementContent (/app/node_modules/@babel/parser/lib/index.js:9508:18)
+      at TypeScriptParserMixin.parseStatementLike (/app/node_modules/@babel/parser/lib/index.js:12767:17)
+      at TypeScriptParserMixin.parseStatementListItem (/app/node_modules/@babel/parser/lib/index.js:12747:17)
+      at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/app/node_modules/@babel/parser/lib/index.js:13316:61)
+      at TypeScriptParserMixin.parseBlockBody (/app/node_modules/@babel/parser/lib/index.js:13309:10)
+      at TypeScriptParserMixin.parseBlock (/app/node_modules/@babel/parser/lib/index.js:13297:10)
+      at TypeScriptParserMixin.parseFunctionBody (/app/node_modules/@babel/parser/lib/index.js:12100:24)
+      at TypeScriptParserMixin.parseArrowExpression (/app/node_modules/@babel/parser/lib/index.js:12075:10)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (/app/node_modules/@babel/parser/lib/index.js:11687:12)
+      at TypeScriptParserMixin.parseExprAtom (/app/node_modules/@babel/parser/lib/index.js:11331:23)
+      at TypeScriptParserMixin.parseExprAtom (/app/node_modules/@babel/parser/lib/index.js:4764:20)
+      at TypeScriptParserMixin.parseExprSubscripts (/app/node_modules/@babel/parser/lib/index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (/app/node_modules/@babel/parser/lib/index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/app/node_modules/@babel/parser/lib/index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/app/node_modules/@babel/parser/lib/index.js:10899:61)

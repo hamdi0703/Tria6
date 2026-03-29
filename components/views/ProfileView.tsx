@@ -273,7 +273,7 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
                                         <h3 className="font-bold text-lg text-neutral-900 dark:text-white group-hover:text-indigo-500 transition-colors truncate pr-2">{col.name}</h3>
                                         {!col.isPublic && isOwner && <span className="text-[9px] bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded text-neutral-500">Gizli</span>}
                                     </div>
-                                    <p className="text-xs text-neutral-500">{col.movies ? col.movies.length : 0} İçerik</p>
+                                    <p className="text-xs text-neutral-500">{col.itemCount ?? (col.movies ? col.movies.length : 0)} İçerik</p>
                                     {col.description && <p className="text-xs text-neutral-400 mt-2 line-clamp-1">{col.description}</p>}
                                 </div>
                             </div>

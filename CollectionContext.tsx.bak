@@ -18,7 +18,7 @@ interface CollectionContextType {
   activeCollectionId: string;
   activeCollectionMovies: Movie[]; // Sadece Aktif Listenin Filmleri (Lazy Load)
   sharedList: Collection | null;
-  
+
   setActiveCollectionId: (id: string) => void;
   createCollection: (name: string) => void;
   deleteCollection: (id: string) => void;
@@ -44,9 +44,9 @@ const generateToken = () => {
 };
 
 export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user, loading: authLoading, openAuthModal } = useAuth(); 
+  const { user, loading: authLoading, openAuthModal } = useAuth();
   const { showToast } = useToast();
-  
+
   // State Bölümlemesi
   const [collections, setCollections] = useState<Collection[]>([]); // Sadece Metadata
   const [activeCollectionId, setActiveCollectionId] = useState<string>('');
@@ -79,43 +79,31 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           try {
               // SADECE METADATA ÇEKİYORUZ (Hızlı)
               const { data, error } = await collectionService.getUserCollectionsMetadata(user.id);
-              
+
               if (error) throw error;
 
-                  const mapped: Collection[] = data.map((d: any) => {
-                      let itemCount = 0;
-                      if (Array.isArray(d.collection_items) && d.collection_items.length > 0) {
-                          itemCount = d.collection_items[0].count || 0;
-                      } else if (d.collection_items && typeof d.collection_items[0]?.count === "number") {
-                          itemCount = d.collection_items[0].count;
-                      } else if (d.collection_items && typeof d.collection_items[0]?.count === "undefined" && d.collection_items[0]) {
-                          itemCount = d.collection_items[0].count;
-                      }
-                      if (d.collection_items && d.collection_items[0] && typeof d.collection_items[0].count !== "undefined") { itemCount = d.collection_items[0].count; } else if (d.collection_items && typeof d.collection_items.count === "number") { itemCount = d.collection_items.count; }
-                      return {
-                          id: d.id,
-                          name: d.name,
-                          description: d.description || "",
-                          isPublic: d.is_public || false,
-                          shareToken: d.share_token,
-                          coverImage: d.cover_image,
-                          movies: [],
-                          itemCount: itemCount,
-                          topFavoriteMovies: d.top_favorite_movies,
-                          topFavoriteShows: d.top_favorite_shows,
-                          ownerId: d.user_id
-                      };
-                  });
+              if (data && data.length > 0) {
+                  const mapped: Collection[] = data.map((d: any) => ({
+                      id: d.id,
+                      name: d.name,
+                      description: d.description || '',
+                      isPublic: d.is_public || false,
+                      shareToken: d.share_token,
+                      coverImage: d.cover_image,
+                      movies: [], // Boş başlatıyoruz (Lazy Load)
+                      topFavoriteMovies: d.top_favorite_movies,
+                      topFavoriteShows: d.top_favorite_shows,
+                      ownerId: d.user_id
                   }));
                   setCollections(mapped);
-                  
+
                   // LocalStorage'dan son ID'yi al ama güvenli mi kontrol et (UUID olmalı)
                   const lastActive = localStorage.getItem(LAST_ACTIVE_ID_KEY);
-                  
+
                   // Eğer lastActive "guest-" ile başlıyorsa bunu yoksay ve veritabanından gelen ilk listeyi seç
                   const isValidId = lastActive && !lastActive.startsWith('guest-');
                   const activeExists = isValidId ? mapped.find(c => c.id === lastActive) : null;
-                  
+
                   const targetId = activeExists ? activeExists.id : mapped[0].id;
                   setActiveCollectionId(targetId);
                   // Local storage'ı temizle/güncelle ki hatalı ID kalmasın
@@ -144,7 +132,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
       const fetchItems = async () => {
           if (!activeCollectionId) return;
-          
+
           // GÜVENLİK KONTROLÜ: Eğer ID 'guest-' ile başlıyorsa DB sorgusu atma
           if (activeCollectionId.startsWith('guest-')) return;
 
@@ -152,7 +140,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           try {
               const movies = await collectionService.getCollectionItems(activeCollectionId);
               setActiveCollectionMovies(movies);
-              
+
               // Local state'i de güncelle (senkronizasyon için)
               setCollections(prev => prev.map(c => c.id === activeCollectionId ? { ...c, movies } : c));
           } catch (e) {
@@ -171,7 +159,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const createCollection = async (name: string) => {
       const newCol: Collection = {
-          id: '', 
+          id: '',
           name,
           movies: [],
           isPublic: false,
@@ -244,7 +232,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
           showToast('Listeye eklendi', 'success');
       }
       setActiveCollectionMovies(newMovies);
-      
+
       // Update metadata collection array reference too (for consistency)
       setCollections(prev => prev.map(c => c.id === activeCollectionId ? { ...c, movies: newMovies } : c));
 
@@ -282,10 +270,10 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Helper for internal use
   const updateTopFavoritesLocal = (colId: string, moviesFavs: any[], showsFavs: any[]) => {
-      setCollections(prev => prev.map(c => c.id === colId ? { 
-          ...c, 
-          topFavoriteMovies: moviesFavs, 
-          topFavoriteShows: showsFavs 
+      setCollections(prev => prev.map(c => c.id === colId ? {
+          ...c,
+          topFavoriteMovies: moviesFavs,
+          topFavoriteShows: showsFavs
       } : c));
   };
 
@@ -327,7 +315,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const loadSharedList = async (ids: string[]) => {
       const tmdb = new TmdbService();
-      
+
       const fetchItem = async (idStr: string) => {
           const id = parseInt(idStr);
           if (isNaN(id)) return null;
@@ -345,7 +333,7 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       try {
         const results = await Promise.all(ids.map(id => fetchItem(id)));
         const movies = results.filter((m): m is Movie => m !== null);
-        
+
         if (movies.length > 0) {
             setSharedList({
                 id: 'legacy-shared',
@@ -368,25 +356,25 @@ export const CollectionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   };
 
   const exitSharedMode = () => { setSharedList(null); };
-  
+
   // FIX: Reset işlemi sırasında 404 hatasını önlemek için ana sayfaya yönlendiriyoruz.
-  const resetCollections = () => { 
-      localStorage.clear(); 
-      window.location.href = '/'; 
+  const resetCollections = () => {
+      localStorage.clear();
+      window.location.href = '/';
   };
 
   return (
-    <CollectionContext.Provider value={{ 
-        collections, 
+    <CollectionContext.Provider value={{
+        collections,
         activeCollectionId,
         activeCollectionMovies, // Exposed
-        sharedList, 
-        setActiveCollectionId, 
-        createCollection, 
+        sharedList,
+        setActiveCollectionId,
+        createCollection,
         deleteCollection,
         updateCollectionSettings,
-        toggleMovieInCollection, 
-        checkIsSelected, 
+        toggleMovieInCollection,
+        checkIsSelected,
         regenerateToken,
         loadCollectionByToken,
         loadCloudList,

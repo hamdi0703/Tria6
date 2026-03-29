@@ -55,7 +55,7 @@ export const useProfileData = (
 
                 setProfile(builtProfile);
 
-                const reviewArray = Object.values(myReviews).sort((a: any, b: any) => 
+                const reviewArray = Object.values(myReviews).sort((a: any, b: any) =>
                     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
                 );
                 setReviews(reviewArray);
@@ -67,7 +67,7 @@ export const useProfileData = (
                     });
                 });
                 setMovieCache(cache);
-                
+
                 setLoading(false);
                 return;
             }
@@ -80,11 +80,11 @@ export const useProfileData = (
                     .select('*')
                     .eq('username', username)
                     .single();
-                
+
                 if (profileError || !userProfile) throw new Error("Kullanıcı bulunamadı");
 
                 if (userProfile.is_public === false) {
-                    setProfile({ ...userProfile, collections: [], isPrivate: true, tier: userProfile.tier || 'BASIC' }); 
+                    setProfile({ ...userProfile, collections: [], isPrivate: true, tier: userProfile.tier || 'BASIC' });
                     setLoading(false);
                     return;
                 }
@@ -93,10 +93,10 @@ export const useProfileData = (
                 const [collectionsResult, reviewsResult] = await Promise.all([
                     supabase
                         .from('user_collections')
-                        .select("*, collection_items(count)")
+                        .select('*')
                         .eq('user_id', userProfile.id)
                         .eq('is_public', true),
-                    
+
                     supabase
                         .from('reviews')
                         .select('*')
@@ -104,34 +104,23 @@ export const useProfileData = (
                         .order('created_at', { ascending: false })
                 ]);
 
-                const collections: Collection[] = (collectionsResult.data || []).map((d: any) => {
-                    let itemCount = 0;
-                    if (d.collection_items && d.collection_items[0] && typeof d.collection_items[0].count !== "undefined") {
-                        itemCount = d.collection_items[0].count;
-                    } else if (d.collection_items && typeof d.collection_items.count === "number") {
-                        itemCount = d.collection_items.count;
-                    }
-                    return {
-                        id: d.id,
-                        name: d.name,
-                        description: d.description,
-                        isPublic: d.is_public,
-                        shareToken: d.share_token,
-                        coverImage: d.cover_image,
-                        itemCount: itemCount,
-                        movies: Array.isArray(d.movies) ? d.movies : [],
-                        ownerId: d.user_id,
-                        topFavoriteMovies: d.top_favorite_movies,
-                        topFavoriteShows: d.top_favorite_shows
-                    };
-                });
+                const collections: Collection[] = (collectionsResult.data || []).map((d: any) => ({
+                    id: d.id,
+                    name: d.name,
+                    description: d.description,
+                    isPublic: d.is_public,
+                    shareToken: d.share_token,
+                    coverImage: d.cover_image,
+                    movies: Array.isArray(d.movies) ? d.movies : [],
+                    ownerId: d.user_id
+                }));
 
                 setProfile({
                     ...userProfile,
                     collections: collections,
                     tier: userProfile.tier || 'BASIC'
                 });
-                
+
                 setReviews(reviewsResult.data || []);
 
                 const cache: Record<number, Movie> = {};

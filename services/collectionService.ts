@@ -8,7 +8,7 @@ export const collectionService = {
         // Filmleri çekmiyoruz, sadece kaç tane olduğunu sayıyoruz (count)
         return supabase
             .from('user_collections')
-            .select('id, name, description, is_public, share_token, cover_image, top_favorite_movies, top_favorite_shows, user_id')
+            .select('id, name, description, is_public, share_token, cover_image, top_favorite_movies, top_favorite_shows, user_id, collection_items(count)')
             .eq('user_id', userId)
             .order('created_at', { ascending: true });
     },
