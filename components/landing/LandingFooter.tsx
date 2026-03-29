@@ -58,7 +58,7 @@ const LandingFooter: React.FC = () => {
 
         <div className="border-t border-neutral-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[10px] text-neutral-600">
-            © 2024 Tria Platform. Tüm hakları saklıdır.
+            © 2026 İzleme Listem Platform. Tüm hakları saklıdır.
           </p>
           <div className="flex gap-2">
              <div className="w-2 h-2 rounded-full bg-green-500"></div>
