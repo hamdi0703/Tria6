@@ -1,167 +1,244 @@
-# Tria App - Kapsamlı Test Yönergeleri
+# Tria App - Kapsamlı Test ve Canlıya Alım (Pre-Launch) Kılavuzu
 
-Bu belge, Tria uygulamasının genel işleyişini, profil yönetimini, koleksiyon (liste) oluşturma ve paylaşma özelliklerini, oyunları ve SEO uyumluluğunu masaüstü ortamında test etmeniz için hazırlanmış detaylı bir kılavuzdur.
+Bu belge, Tria uygulamasının hatasız çalıştığından, performans sorunları olmadığından ve kullanıcılara sunulmaya (production) hazır olduğundan emin olmanız için hazırlanmış **çok detaylı, adım adım** bir test rehberidir.
 
-Testleri gerçekleştirirken beklenen sonuçları ve dikkat etmeniz gereken noktaları her adımın altında bulabilirsiniz.
-
----
-
-## 1. Genel Yükleme ve SEO Kontrolleri
-
-### Adım 1.1: Ana Sayfa Yüklenmesi ve Meta Etiketleri
-**İşlem:** Uygulamayı tarayıcınızda açın (örn. `http://localhost:5173/` veya canlı URL). Tarayıcının "İncele" (Inspect) aracını açarak `<head>` bölümüne bakın.
-**Beklenen Sonuç:**
-- `title` etiketinin başlangıçta `Tria | Keşfet` olması.
-- `<meta name="description">`, `og:title`, `og:image`, `twitter:card` vb. SEO etiketlerinin mevcut ve dolu olması.
-- Sayfada konsol hatası (kırmızı metinler) olmaması.
-
-### Adım 1.2: Dinamik Başlık (Title) Değişimi
-**İşlem:** Menüden farklı sayfalara (Koleksiyonum, Profil, Oyunlar vb.) gidin ve bir filmin/dizinin detay sayfasına tıklayın.
-**Beklenen Sonuç:**
-- Tarayıcı sekmesindeki başlıkların sayfa bağlamına göre değişmesi. (Örn. Profil için `@kullaniciadi | Tria`, bir film seçildiğinde `Film Adı | Tria`).
+Bu testleri yaparken tarayıcınızın **Geliştirici Araçları**'nı (Developer Tools -> `F12` veya `Sağ Tık > İncele`) sürekli açık tutmanız; özellikle **Console (Konsol)** ve **Network (Ağ)** sekmelerini takip etmeniz uygulamanın arka planında her şeyin yolunda olduğunu anlamanız için kritiktir.
 
 ---
 
-## 2. Kimlik Doğrulama ve Profil Yönetimi
+## 1. İlk Yükleme, Genel Performans ve SEO Kontrolleri
 
-### Adım 2.1: Kayıt Olma / Giriş Yapma
-**İşlem:**
-1. Sağ üst köşedeki veya "Koleksiyonum" sayfasındaki "Giriş Yap / Kayıt Ol" butonuna tıklayın.
-2. Yeni bir e-posta ve şifre ile kayıt olun (veya mevcut hesapla giriş yapın).
-**Beklenen Sonuç:**
-- Modal sorunsuz açılıp kapanmalı.
-- Başarılı girişten sonra sağ üstte avatarınız görünmeli.
-- Hatalı şifre/email durumlarında uygun uyarı mesajı (toast) çıkmalı.
+Sistemin ilk yüklendiği andaki davranışını ve arama motorları için doğru hazırlandığını kontrol edeceğiz.
 
-### Adım 2.2: Profil Modal - Profil Düzenleme
-**İşlem:**
-1. Avatarınıza tıklayarak "Profil"i açın.
-2. Sol menüden "Profil Düzenle" (PROFILE) sekmesinde olduğunuzdan emin olun.
-3. Kullanıcı adınızı, web sitenizi ve biyografinizi değiştirin.
-4. "Avatar Seçimi" kısmından farklı bir avatar karakteri seçin ve "Değişiklikleri Kaydet"e tıklayın.
-**Beklenen Sonuç:**
-- "Profil ayarları kaydedildi" bildirimi gelmeli.
-- Sol üstteki ve ana header'daki avatarınız seçtiğiniz yeni avatar ile güncellenmeli.
+### Adım 1.1: Uygulamanın Başlatılması ve Temel Hata Kontrolü
+**Nasıl Yapılır:**
+1. Uygulamanızı başlatın (örn. `npm run dev` veya Vercel bağlantınız).
+2. Tarayıcıda sayfayı açmadan önce Geliştirici Araçlarını (F12) açın.
+3. Sayfayı yenileyin (`F5` veya `Ctrl+R`).
 
-### Adım 2.3: Profil Modal - Güvenlik ve Gizlilik
-**İşlem:**
-1. Profil modaldan "Gizlilik & Güvenlik" (SECURITY) sekmesine geçin.
-2. "Herkese Açık Profil" anahtarını (toggle) kapatıp "Gizlilik Ayarını Güncelle"ye tıklayın.
-3. Şifre değiştirme bölümünden yeni bir şifre (en az 6 karakter) belirleyip onaylayın.
-**Beklenen Sonuç:**
-- Profil gizlilik durumunun kaydedildiğine dair başarı bildirimi almalısınız.
-- Şifreler eşleşmezse veya 6 karakterden kısaysa uyarı vermeli.
+**Neyi Kontrol Etmelisiniz (Konsol/Ağ):**
+- **Console Sekmesi:** Kırmızı renkli *hiçbir* "Error" olmamalıdır. (Sarı uyarılar -Warning- React veya üçüncü parti kütüphanelerden gelebilir, şimdilik kabul edilebilir). "Uncaught ReferenceError", "Failed to fetch" gibi kritik hatalar kesinlikle olmamalıdır.
+- **Network Sekmesi:** `index.html`, `.js` ve `.css` dosyalarının yükleme durumları (Status) `200 OK` veya `304 Not Modified` olmalıdır. Kırmızı renkli başarısız (`404` veya `500`) bir ağ isteği olmamalıdır.
 
-### Adım 2.4: Profil Modal - Tercihler ve Veri Yönetimi
-**İşlem:**
-1. "Uygulama Tercihleri" (APP_PREFS) sekmesinden Aydınlık/Karanlık modlar arası geçiş yapın.
-2. "Veri Yönetimi" (DATA_ZONE) sekmesinden "Verilerimi İndir (JSON)" butonuna tıklayın.
-**Beklenen Sonuç:**
-- Tema değişikliği tüm uygulamada anında yansımalı.
-- `tria-backup-[username].json` adında, içeriklerinizi kapsayan bir dosya bilgisayarınıza inmeli.
+### Adım 1.2: SEO Meta Etiketleri ve Dinamik Sayfa Başlıkları
+**Nasıl Yapılır:**
+1. Ana sayfadayken tarayıcı sekmesinin üstündeki yazıya bakın (Title).
+2. Geliştirici araçlarında `Elements` (Öğeler) sekmesine gelin, `<head>` etiketini genişletin.
+3. Sırasıyla menüden "Koleksiyonum", "Profil" sayfalarına ve ardından herhangi bir filmin detay sayfasına tıklayın.
+
+**Neyi Kontrol Etmelisiniz:**
+- `<head>` içinde `<meta name="description" content="...">` dolu ve anlamlı mı?
+- `<meta property="og:title">`, `og:image` gibi sosyal medya paylaşım (Open Graph) etiketleri mevcut mu?
+- Ana sayfadayken Title `Tria | Keşfet` olmalı.
+- Bir film seçtiğinizde sekme adı `Oppenheimer | Tria` (veya filmin adı neyse) olarak *anında* değişmeli.
+- Profilinize girdiğinizde Title `@kullaniciadiniz | Tria` olarak güncellenmeli.
 
 ---
 
-## 3. Koleksiyon (Liste) Yönetimi ve Paylaşım
+## 2. Kullanıcı Kaydı, Giriş ve Kimlik Doğrulama (Auth)
 
-### Adım 3.1: Yeni Liste Oluşturma
-**İşlem:**
-1. Alt menüden veya header'dan "Koleksiyonum" (Dashboard) sayfasına gidin.
-2. "Yeni Liste Oluştur" veya benzeri butona tıklayın.
-3. Liste adını, açıklamasını girin ve görünürlüğünü "Herkese Açık" (Public) olarak seçin.
-**Beklenen Sonuç:**
-- Liste başarıyla oluşturulmalı ve listeleriniz arasında görünmeli.
+Kullanıcıların sisteme giriş çıkış yaparken takılmadığından emin olmalıyız. Bu süreç Supabase ile haberleştiği için Network ağını izlemek çok önemlidir.
 
-### Adım 3.2: Listeye İçerik Ekleme ve Çıkarma
-**İşlem:**
-1. "Keşfet" (Explore) sayfasında veya arama çubuğunu kullanarak birkaç film veya dizi bulun.
-2. İçerik kartının üzerindeki "+" ikonuna veya detay sayfasındaki koleksiyona ekle butonuna tıklayın.
-3. Az önce oluşturduğunuz listeyi seçin.
-4. İşlemi geri almak için aynı butona tekrar tıklayarak içeriği listeden çıkarın.
-**Beklenen Sonuç:**
-- İçerik başarıyla listeye eklenmeli, arayüzde (buton rengi veya ikonu ile) eklendiği belli olmalı.
-- Çıkarma işleminden sonra arayüz eski haline dönmeli.
+### Adım 2.1: Yeni Üye Kaydı (Sign Up)
+**Nasıl Yapılır:**
+1. Sağ üstten veya "Koleksiyonum" boş durum ekranından "Giriş Yap / Kayıt Ol" butonuna basın. Modal açılacaktır.
+2. Formda daha önce sisteme kaydedilmemiş **yeni** bir e-posta ve şifre girin.
+3. Kayıt butonuna basın.
 
-### Adım 3.3: Tria Passport ve Profil Paylaşımı
-**İşlem:**
-1. Profil sayfanıza (`/profile/:username` görünümü veya Paylaş modülü) gidin.
-2. **Tria Passport** kartının render edildiğini, istatistiklerinizin (izlenen, listeler vb.) ve seçtiğiniz en sevdiğiniz 4 filmin (varsa) kart üzerinde göründüğünü teyit edin.
-3. Header'daki Paylaş (Share) ikonuna tıklayın.
-4. Açılan "Paylaşım Merkezi" modalında "Profilini Paylaş" kısmından "Bağlantıyı Kopyala"ya tıklayın.
-5. Kopyalanan bağlantıyı yeni bir gizli sekmede (incognito) açın.
-**Beklenen Sonuç:**
-- Tria Passport doğru verilerle ve efektlerle (seviye/tier bazlı parlama) görünmeli.
-- Gizli sekmede (üye girişi yapılmamış olsa bile) profilinizin herkese açık versiyonu (`TriaPassport` dahil) görülebilmeli. *(Not: Profil "Gizli" moddaysa görülmemeli veya boş dönmeli.)*
+**Neyi Kontrol Etmelisiniz (Konsol/Ağ):**
+- **Network Sekmesi:** Supabase Auth servisine (örn: `auth/v1/signup`) bir `POST` isteği gitmeli. Dönüş kodu `200 OK` olmalıdır.
+- **Arayüz:** "Kayıt başarılı, giriş yapıldı" (veya e-posta onayı gerektiriyorsa "E-postanızı kontrol edin") toast (bildirim) mesajı çıkmalı.
+- Sayfa yenilenmesine gerek kalmadan sağ üstte kullanıcı ikonunuz/avatarınız belirmelidir.
 
-### Adım 3.4: Liste Paylaşımı
-**İşlem:**
-1. "Paylaşım Merkezi" modalında "Liste Paylaş" bölümünden az önce oluşturduğunuz "Herkese Açık" listeyi seçip "Kopyala"ya tıklayın.
-2. Kopyalanan bağlantıyı (`/shared?token=...`) yeni bir gizli sekmede açın.
-**Beklenen Sonuç:**
-- Listenizin adı, açıklaması ve içindeki filmler/diziler başarılı bir şekilde yüklenmeli.
-- Misafir kullanıcı, listeden film detaylarına tıklayabilmeli ancak düzenleme/silme yapamamalıdır.
+### Adım 2.2: Hatalı Giriş ve Validation (Doğrulama) Testi
+**Nasıl Yapılır:**
+1. Hesaptan çıkış yapın (Avatar > Oturumu Kapat).
+2. Giriş yap ekranını açın.
+3. Şifreyi eksik (örn: 2 karakter) veya yanlış girin.
+
+**Neyi Kontrol Etmelisiniz:**
+- Şifrenin en az 6 karakter olması gerektiğine dair form uyarısı çıkmalı.
+- Yanlış şifre denemesinde **Console**'da uygulama çökmemeli; sadece arayüzde kırmızı bir bildirim (Toast) belirmeli ("Invalid login credentials" vs.).
 
 ---
 
-## 4. Oyunlar (Game Hub) Testleri
+## 3. Profil Düzenleme, Güvenlik ve Veri Yönetimi
 
-### Adım 4.1: Game Hub Modal ve Gezinme
-**İşlem:**
-1. Keşfet sayfasındaki veya menüdeki Oyunlar (Game Hub) ikonuna tıklayın.
-2. Açılan modalda 3 oyunun (CineMatch, Frame Focus, CineRoulette) listelendiğini görün.
+Profil bölümü, kullanıcının hem uygulamanın veritabanını (Supabase `profiles` tablosu) hem de uygulamanın görünümünü kontrol ettiği yerdir.
 
-### Adım 4.2: Frame Focus
-**İşlem:**
-1. Game Hub'dan "Frame Focus" oyununu seçin.
-2. Oyun başladığında resmin bulanık (blur effect) olduğunu teyit edin.
-3. Kalan sürenin (timer) çalıştığını gözlemleyin.
-4. Görüntüyü tahmin edip doğru veya yanlış bir cevap seçin.
-**Beklenen Sonuç:**
-- Canvas üzerinde "Blur" efekti düzgün çalışmalı.
-- Süre akmalı.
-- Doğru cevapta sistem "CORRECT" sesini, yanlışta "WRONG" sesini (ses açık ise) oynatmalı ve doğru animasyon (Ding/Buzz efektleri) gösterilmeli.
-- Oyun bittiğinde puan (Süre + Zorluk hesabı üzerinden) gösterilmeli.
+### Adım 3.1: Profil Bilgileri ve Avatar Güncelleme
+**Nasıl Yapılır:**
+1. Giriş yapmış durumdayken avatarınıza tıklayıp "Profil"i açın.
+2. "Profil Düzenle" (PROFILE) sekmesinde Kullanıcı Adı, Web Sitesi ve Biyografi alanlarını doldurun.
+3. Avatar Seçimi galerisinden farklı bir karakter (örn. "Neon Ninja") seçin.
+4. "Değişiklikleri Kaydet" butonuna tıklayın.
 
-### Adım 4.3: CineRoulette
-**İşlem:**
-1. Game Hub'dan "CineRoulette" oyununu seçin.
-2. Çarkı (Kasa) çevirerek rastgele bir film gelmesini sağlayın.
-**Beklenen Sonuç:**
-- Mekanik "TICK" sesleriyle animasyonlu bir geçiş olmalı.
-- Sonunda gelen filme ait detaylar (başlık, afiş) yüklenmeli ve tıklanarak detay sayfasına gidilebilmeli.
+**Neyi Kontrol Etmelisiniz:**
+- **Network Sekmesi:** Supabase'in `profiles` veya `users` tablosuna bir `PATCH` veya `UPDATE` isteği gitmeli. İşlem `204 No Content` veya `200 OK` dönmeli.
+- **Arayüz:** Kaydetme işlemi sırasında buton "Kaydediliyor..." durumuna geçmeli. İşlem bitince başarı bildirimi gelmeli.
+- Modal'ı kapatın. Ana ekrandaki üst menüde (Header) avatarınızın az önce seçtiğiniz karakterle değiştiğini doğrulayın.
 
-### Adım 4.4: CineMatch
-**İşlem:**
-1. Game Hub'dan "CineMatch" oyununu seçin.
-2. Ekrana gelen filmleri sağa (beğen) veya sola (geç) kaydırarak eşleşme mekaniğini deneyin.
-**Beklenen Sonuç:**
-- Kartlar sorunsuz bir şekilde kaydırılabilmeli (Tinder tarzı swipe mekaniği).
-- Beğenilen filmler ilgili listeye/diziye aktarılmalı.
+### Adım 3.2: Uygulama Tercihleri (Tema Değişimi)
+**Nasıl Yapılır:**
+1. Profil modaldan "Uygulama Tercihleri" sekmesine gelin.
+2. "Aydınlık Mod" (Light) ve "Karanlık Mod" (Dark) arasında geçiş yapın.
+
+**Neyi Kontrol Etmelisiniz:**
+- Tema değişikliği *sayfa yenilenmeden* anında tüm sisteme (arka planlar, metin renkleri) yansımalı.
+
+### Adım 3.3: Kullanıcı Verilerini İndirme (GDPR Uyumluluğu)
+**Nasıl Yapılır:**
+1. Profil modaldan "Veri Yönetimi" (DATA_ZONE) sekmesine gelin.
+2. "Verilerimi İndir (JSON)" butonuna tıklayın.
+
+**Neyi Kontrol Etmelisiniz:**
+- Bilgisayarınıza `tria-backup-KULLANICIADI.json` formatında bir dosya inmeli.
+- Dosyayı bir metin editöründe açın. İçerisinde oluşturduğunuz koleksiyonların, profil verilerinizin ve (varsa) yazdığınız yorumların JSON formatında, temiz ve eksiksiz olarak bulunduğunu teyit edin. Eğer "undefined" veya "null" fırlatan bir data yapısı varsa, bu bir hatadır.
 
 ---
 
-## 5. Film / Dizi Detay Görünümü
+## 4. Keşfet, Arama ve Filtreleme İşlevleri (Explore)
 
-### Adım 5.1: İçerik Yüklenmesi
-**İşlem:** Herhangi bir film veya dizi kartına tıklayın.
-**Beklenen Sonuç:**
-- Sayfa en üste otomatik kaydırılmalı (scroll to top).
-- Hero section (Arka plan afişi), özet, oyuncu kadrosu, incelemeler (Review Section) ve sağ taraftaki meta bilgiler (Durum, Yönetmen/Yaratıcı, Ülke bayrakları) eksiksiz yüklenmeli.
-- Eğer içerik "Dizi" ise, sezon/bölüm sayısı (TvStats bileşeni) düzgün görünmeli.
+Ana sayfadaki verilerin TMDB'den doğru ve hızlı çekildiğini, arama motorunun düzgün çalıştığını kontrol edeceğiz.
+
+### Adım 4.1: Sonsuz Kaydırma (Infinite Scroll) veya Sayfalamayı Test Etme
+**Nasıl Yapılır:**
+1. "Keşfet" sekmesinde yer alan "Popüler / Trendler" listesinde aşağıya doğru kaydırın (veya "Daha Fazla Yükle" butonuna basın).
+
+**Neyi Kontrol Etmelisiniz:**
+- Yeni içerikler yüklenirken arayüzde kısa süreliğine bir "Yükleniyor (Skeleton)" animasyonu görünmeli.
+- **Network Sekmesi:** TMDB API'sine `page=2`, `page=3` parametreleriyle yeni istekler (`GET /discover/movie` vb.) atılmalı.
+- Sayfa takılmamalı veya içerikler üst üste binmemelidir. Aynı film iki kere gösterilmemelidir (Duplicate key hatası olmamalı).
+
+### Adım 4.2: Arama (Search) Doğruluğu ve Hata Toleransı
+**Nasıl Yapılır:**
+1. Üst menüdeki Büyüteç ikonuna tıklayın.
+2. Arama çubuğuna popüler bir film yazın (örn. `Matrix`). Sonuçları gözlemleyin.
+3. Arama çubuğunu temizleyip anlamsız bir metin yazın (örn. `qweqwe123asd`).
+
+**Neyi Kontrol Etmelisiniz:**
+- Matrix aramasında saniyeler içinde doğru sonuçlar listelenmeli.
+- Anlamsız aramada sayfa çökmek veya beyaz ekrana düşmek yerine, ortada şık bir tasarımla "Sonuç bulunamadı" veya "Aramanıza uygun içerik yok" benzeri bir boş durum (Empty State) mesajı göstermelidir.
+- **Console Sekmesi:** Aramalar esnasında API rate-limit (Çok fazla istek) `429 Too Many Requests` hatası almadığınızdan emin olun (Arama barında *debounce* yani yazmayı bitirmeyi bekleme özelliği olmalıdır).
+
+### Adım 4.3: Filtre Barı (Filter Bar) Çalışıyor Mu?
+**Nasıl Yapılır:**
+1. Keşfet sayfasındaki film türlerini (Aksiyon, Komedi, Bilim Kurgu vb.) seçin.
+2. Diziler (TV) ve Filmler (Movie) sekmeleri arasında geçiş yapın.
+
+**Neyi Kontrol Etmelisiniz:**
+- Örneğin "Bilim Kurgu" seçtiğinizde sayfa sadece bilim kurgu içerikleriyle yenilenmeli.
+- TMDB API isteğinde `with_genres` parametresi doğru gitmelidir (Ağ sekmesinden incelenebilir).
 
 ---
 
-## 6. Hata ve İstisna Yönetimi
+## 5. Film / Dizi Detay Sayfası ve İnceleme (Review) Sistemi
 
-### Adım 6.1: Olmayan Sayfaya Gitme
-**İşlem:** Geçersiz bir URL'ye veya silinmiş bir liste/kullanıcı sayfasına erişmeyi deneyin.
-**Beklenen Sonuç:**
-- `NotFoundView` (404 Sayfası) veya uygun bir hata durumu ("İçerik Yüklenemedi") gösterilmeli ve kullanıcıya "Geri Dön" seçeneği sunulmalı.
+Bir içeriğin tüm detaylarının eksiksiz geldiğinden ve etkileşim kurulabildiğinden emin olmalıyız.
 
-### Adım 6.2: Arama (Search)
-**İşlem:** Header'daki arama ikonuna tıklayın ve anlamsız karakterler (örn: `asdasfasf`) yazın.
-**Beklenen Sonuç:**
-- Arama sonuçlanmalı ve "Sonuç bulunamadı" mesajı düzgünce gösterilmeli. Uygulama çökmemeli.
+### Adım 5.1: Detay Sayfası Yükleme Performansı
+**Nasıl Yapılır:**
+1. Listeden herhangi bir filme tıklayın.
+
+**Neyi Kontrol Etmelisiniz:**
+- **Çok Önemli:** Sayfa en aşağıda kalmamalı, film detayına girildiğinde otomatik olarak **sayfanın en üstüne** kaydırılmış (scroll to top) olarak açılmalıdır.
+- Arka planda büyük poster (Hero image), cast (oyuncular) listesi, özet, yayın yılı, durum (Devam Ediyor, İptal vs.) alanlarının tümü dolu olmalıdır. Veri eksikse (örn: özet yoksa) boş kalmamalı, "Bu içerik için özet bulunmamaktadır" tarzında yedek bir metin göstermelidir.
+
+### Adım 5.2: İnceleme ve Puanlama Ekleme (Review Section)
+**Nasıl Yapılır:**
+1. Film detay sayfasında aşağı kaydırarak "İncelemeler" (Reviews) bölümünü bulun.
+2. 5 yıldız üzerinden bir puan verin ve bir yorum yazarak "Gönder" deyin.
+
+**Neyi Kontrol Etmelisiniz:**
+- Yorum gönderildikten sonra sayfa yenilenmeden yorumunuz hemen listede (tercihen en üstte) belirmelidir.
+- **Console Sekmesi:** React tarafında bir "key" uyarısı (Each child in a list should have a unique "key" prop) vermediğinden emin olun.
+- Profil > Veri Yönetimi kısmından JSON verinizi indirdiğinizde yazdığınız bu yorum o dosyanın içinde yer almalıdır.
 
 ---
-**Test Notu:** Bu uygulamanın çoğu özelliği client-side state ve Supabase veritabanı ile eşzamanlı çalışmaktadır. Herhangi bir noktada veri tutarsızlığı görürseniz `Profil > Veri Yönetimi > Önbelleği Temizle` seçeneğini kullanarak yerel verilerinizi sıfırlayıp tekrar test edebilirsiniz.
+
+## 6. Koleksiyon ve Paylaşım Mekanikleri (En Kritik Testler)
+
+Koleksiyon yönetimi Tria'nın kalbidir. Veritabanı işlemleri (CRUD) sorunsuz olmalıdır.
+
+### Adım 6.1: Liste Oluşturma, İçerik Ekleme ve Silme Akışı
+**Nasıl Yapılır:**
+1. "Koleksiyonum" (Dashboard) sayfasına gidin.
+2. "Yeni Liste Oluştur" butonuna tıklayıp, "Favori Klasiklerim" adında, durumu **"Herkese Açık"** olan bir liste oluşturun.
+3. Geri dönüp "Keşfet" sayfasından 3 farklı filmin üzerindeki `+` ikonuna tıklayıp, açılan modalda bu listeyi seçin.
+4. "Koleksiyonum" sayfasına geri dönün. Listenin içine (veya ayarlarına) girip eklediğiniz filmlerden birini listeden silin (veya `+` ikonuna tekrar tıklayarak tiki kaldırın).
+
+**Neyi Kontrol Etmelisiniz:**
+- **Ağ Sekmesi:** `user_collections` tablosuna INSERT ve `collection_items` tablosuna INSERT / DELETE isteklerinin başarıyla (200/201) tamamlandığını izleyin.
+- Film listeye eklendiğinde, aynı filme detay sayfasından tekrar baktığınızda "Listeye Eklendi" (veya tikli buton) olarak güncel halini göstermelidir. Sayfayı F5 ile yenilediğinizde de bu bilgi (State) korunmalıdır.
+- Sildiğiniz film anında listeden kaybolmalıdır.
+
+### Adım 6.2: Tria Passport ve Link Paylaşımı (Share Token Sistemi)
+**Nasıl Yapılır:**
+1. Üst menüdeki "Paylaş" ikonuna (veya profilden paylaş butonuna) tıklayarak "Paylaşım Merkezi"ni açın.
+2. "Liste Paylaş" bölümünden az önce oluşturduğunuz "Favori Klasiklerim" listesini seçin ve kopyala deyin. (Bağlantı `https://.../shared?token=ABC123XYZ` formatında kopyalanacaktır).
+3. Tarayıcınızda **Gizli Sekme (Incognito)** açın ve bu kopyaladığınız linki yapıştırın.
+
+**Neyi Kontrol Etmelisiniz (Çok Önemli - Güvenlik & İşlevsellik Testi):**
+- Gizli sekmede (siz oturum açmamış olsanız bile) listenin içindeki 2 filmin ve listenin adının sorunsuz yüklendiğini görün.
+- **Güvenlik Kontrolü:** Gizli sekmedeki misafir kullanıcı profilinde veya listedeki filmlerde **"Sil", "Düzenle" gibi butonları kesinlikle görmemelidir.** Sadece izleme (Read-only) modunda olmalıdır.
+- Liste gizlilik ayarlarından "Sadece Ben" (Private) yapılıp tekrar aynı gizli sekme linkine gidildiğinde sayfa yüklenmemeli; "Liste bulunamadı veya gizli" hatası vermelidir.
+
+---
+
+## 7. Game Hub (Oyunlar) Sistemi
+
+Oyunlardaki performans ve state (durum) yönetimi tarayıcıyı yorabilecek (Canvas/Audio) işlemler içerir.
+
+### Adım 7.1: Frame Focus - Performans ve Canvas Testi
+**Nasıl Yapılır:**
+1. Menüden Oyunlar'ı açıp "Frame Focus"u başlatın.
+2. Oyun sırasında ekrandaki resmin kademeli olarak netleştiğini izleyin.
+3. Kalan süre bitene kadar bekleyin (Bile bile yanlış yapın/zamanı doldurun).
+
+**Neyi Kontrol Etmelisiniz:**
+- **Konsol:** Görüntü bulanıklaştırma işlemi (Canvas render) sırasında konsolda memory leak (bellek sızıntısı) uyarıları çıkmamalı.
+- Ses efektlerinin ("Tick", Süre bittiğinde "Game Over" sesi) çalıştığını doğrulayın (Tarayıcınızın sekme sesinin açık olduğundan emin olun).
+- Puan hesaplaması sıfırın altına (negatif) düşmemelidir.
+
+### Adım 7.2: CineRoulette
+**Nasıl Yapılır:**
+1. Oyunlar menüsünden CineRoulette'i açın.
+2. Çarkı art arda, animasyonun bitmesini beklemeden 3-4 kez hızlıca "Çevir" butonuna basarak zorlayın (Spam Testi).
+
+**Neyi Kontrol Etmelisiniz:**
+- Animasyonlar çakışmamalı, sistem çökmek yerine son isteği dikkate alarak veya butonun basılmasını engelleyerek (Disabled state) süreci kontrol altında tutmalıdır.
+- Sonuçlanan film tıklandığında doğru detay sayfasına (`/movie/ID` veya `/tv/ID`) yönlendirilmelidir.
+
+### Adım 7.3: CineMatch
+**Nasıl Yapılır:**
+1. Oyunlar menüsünden CineMatch'i açın.
+2. Kartları farenizle (veya dokunmatik ekranla) sağa ve sola sürükleyip bırakın (Tinder benzeri etkileşim).
+
+**Neyi Kontrol Etmelisiniz:**
+- Kart sürükleme hissiyatı akıcı olmalı, ekrandan dışarı taşarken kesiklik yaşanmamalıdır.
+- Sağa kaydırılan kartların başarıyla favorilere veya geçici eşleşme listesine eklendiğinden emin olun (Konsol veya ağ sekmesi aracılığıyla kontrol edilebilir).
+
+---
+
+## 8. Hata Yönetimi ve 404 Senaryoları (Edge Cases)
+
+Kullanıcıların karşılaşabileceği nadir ancak kritik senaryoları test edelim.
+
+### Adım 8.1: Sayfa Bulunamadı (404) Testi
+**Nasıl Yapılır:**
+1. Tarayıcının adres çubuğuna elle geçersiz bir link girin: `http://localhost:5173/bu-sayfa-kesinlikle-yok`
+
+**Neyi Kontrol Etmelisiniz:**
+- Beyaz ve boş bir ekran yerine, temanıza uygun bir "404 - Sayfa Bulunamadı" özel tasarımı ve ana sayfaya dönmek için bir buton görünmelidir.
+
+### Adım 8.2: Çökme Koruması (Error Boundary Testi)
+**Nasıl Yapılır:**
+(Bu testi yapmak zordur ancak mekaniğin çalıştığını anlamak için)
+1. İnternet bağlantınızı bilgisayarınızdan anlık olarak kesin (veya Network sekmesinden `Offline` modunu seçin).
+2. "Keşfet" sekmesinde daha önce yüklenmemiş yeni bir arama yapmaya çalışın.
+
+**Neyi Kontrol Etmelisiniz:**
+- Uygulama tepkisiz kalmamalıdır. Ekranda "Ağ hatası", "Bağlantı koptu" veya "Veriler yüklenemedi" şeklinde düzgün tasarlanmış bir hata mesajı görülmeli ve internet geri geldiğinde kullanıcının tekrar denemesi için ("Tekrar Dene" butonu) fırsat sunulmalıdır. Uygulamanın beyaz ekrana çökmesi `Error Boundary` (Hata Yakalayıcı) yapısının eksik olduğunu gösterir.
+
+---
+**Final Onayı:** Yukarıdaki tüm adımları, özellikle Konsol (Console) ve Ağ (Network) sekmelerinde hata görmeden (200 OK statü kodları, kırmızı uyarısız konsol ekranı) tamamladıysanız uygulamanız üretim ortamına (Production) **çıkmaya hazırdır**. Tebrikler!
