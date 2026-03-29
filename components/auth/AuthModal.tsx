@@ -48,7 +48,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ onClose }) => {
         onClose();
       } else if (view === 'REGISTER') {
         await signUp(email, password, username);
-        setView('LOGIN'); 
+        // E-posta doğrulaması kapalıysa doğrudan oturum açılacağı için modal kapatılır.
+        // Eğer giriş yapıldıysa user objesi state'e set edilmiştir ancak
+        // burada doğrudan onClose çağırarak UI'ı temizleyebiliriz.
+        onClose();
       } else if (view === 'FORGOT_PASSWORD') {
         await resetPassword(email);
         setResetSent(true); // Başarılı ekrana geç
