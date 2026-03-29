@@ -181,6 +181,32 @@ const MovieCard: React.FC<MovieCardProps> = ({
             </div>
         )}
 
+        {/* QUICK REVIEW ICON & TOOLTIP (OWN COLLECTION ONLY, NO OWNER REVIEW) */}
+        {!ownerReview && myReview?.comment && !isMultiSelectMode && (
+             <div className="absolute top-12 left-2 z-40 group/tooltip">
+                <div className="bg-indigo-600/90 backdrop-blur-md p-1.5 rounded-full text-white cursor-help shadow-lg hover:scale-110 transition-transform flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                </div>
+                {/* Tooltip Content */}
+                <div className="absolute top-full left-0 mt-2 w-48 p-2.5 bg-neutral-900/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:translate-y-0 transition-all duration-300 z-50">
+                     <div className="flex items-center justify-between mb-1.5 border-b border-white/10 pb-1.5">
+                         <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Notum</span>
+                         {myReview.rating && (
+                             <div className="flex items-center gap-0.5 bg-yellow-500/20 px-1 py-0.5 rounded text-[10px] font-bold text-yellow-500">
+                                 {myReview.rating}
+                                 <svg className="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                             </div>
+                         )}
+                     </div>
+                     <p className={`text-[11px] font-medium leading-relaxed text-neutral-300 ${myReview.hasSpoiler ? 'italic text-red-400' : ''}`}>
+                         {myReview.hasSpoiler ? '⚠️ Spoiler içeriyor.' : `"${myReview.comment}"`}
+                     </p>
+                </div>
+            </div>
+        )}
+
         {/* 7. INFO AREA */}
         <div className="absolute bottom-0 left-0 right-0 p-3 z-10 transform transition-transform duration-300 translate-y-1 group-hover:translate-y-0 pointer-events-none">
             <h3 className="text-white text-xs font-bold leading-tight line-clamp-2 drop-shadow-md mb-1">
