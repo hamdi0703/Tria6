@@ -9,8 +9,8 @@ export type SortOption =
   | 'vote_count.desc';
 
 // --- Dashboard Specific Types ---
-export type SortOptionType = 'added_desc' | 'added_asc' | 'date_desc' | 'date_asc' | 'rating_desc' | 'rating_asc' | 'runtime_desc' | 'runtime_asc' | 'title_asc' | 'votes_desc';
-export type GroupOptionType = 'none' | 'year' | 'genre' | 'director' | 'actor' | 'runtime' | 'rating';
+export type SortOptionType = 'added_desc' | 'added_asc' | 'date_desc' | 'date_asc' | 'rating_user_desc' | 'rating_user_asc' | 'rating_tmdb_desc' | 'rating_tmdb_asc' | 'runtime_desc' | 'runtime_asc' | 'title_asc' | 'votes_desc';
+export type GroupOptionType = 'none' | 'year' | 'director' | 'actor' | 'runtime' | 'rating_user' | 'rating_tmdb';
 export type FilterStatusType = 'all' | 'rated' | 'reviewed';
 // --------------------------------
 

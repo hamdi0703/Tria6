@@ -39,6 +39,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
       filterGenre, setFilterGenre,
       filterYear, setFilterYear,
       filterMinRating, setFilterMinRating,
+      filterMinTmdbRating, setFilterMinTmdbRating,
       filterStatus, setFilterStatus,
       currentGroup, setCurrentGroup,
       tabFilteredMovies,
@@ -152,6 +153,8 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
             onFilterYearChange={setFilterYear}
             filterMinRating={filterMinRating}
             onFilterMinRatingChange={setFilterMinRating}
+            filterMinTmdbRating={filterMinTmdbRating}
+            onFilterMinTmdbRatingChange={setFilterMinTmdbRating}
             filterStatus={filterStatus}
             onFilterStatusChange={setFilterStatus}
             currentGroup={currentGroup}
