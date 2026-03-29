@@ -15,6 +15,7 @@ export const useMovieFiltering = (
     const [filterGenre, setFilterGenre] = useState<number | null>(null);
     const [filterYear, setFilterYear] = useState<number | null>(null);
     const [filterMinRating, setFilterMinRating] = useState<number | null>(null);
+    const [filterMinTmdbRating, setFilterMinTmdbRating] = useState<number | null>(null);
     const [filterStatus, setFilterStatus] = useState<FilterStatusType>('all');
     const [currentGroup, setCurrentGroup] = useState<GroupOptionType>('none');
 
@@ -51,6 +52,14 @@ export const useMovieFiltering = (
             });
         }
 
+        // Min TMDB Rating Filter
+        if (filterMinTmdbRating) {
+            result = result.filter(m => {
+                const tmdbRating = m.vote_average;
+                return tmdbRating ? tmdbRating >= filterMinTmdbRating : false;
+            });
+        }
+
         // Status Filter
         if (filterStatus === 'rated') {
             result = result.filter(m => !!reviews[m.id]?.rating);
@@ -65,8 +74,10 @@ export const useMovieFiltering = (
                 case 'added_asc': return new Date(a.addedAt || 0).getTime() - new Date(b.addedAt || 0).getTime();
                 case 'date_desc': return new Date(b.release_date || b.first_air_date || 0).getTime() - new Date(a.release_date || a.first_air_date || 0).getTime();
                 case 'date_asc': return new Date(a.release_date || a.first_air_date || 0).getTime() - new Date(b.release_date || b.first_air_date || 0).getTime();
-                case 'rating_desc': return (reviews[b.id]?.rating || 0) - (reviews[a.id]?.rating || 0);
-                case 'rating_asc': return (reviews[a.id]?.rating || 0) - (reviews[b.id]?.rating || 0);
+                case 'rating_user_desc': return (reviews[b.id]?.rating || 0) - (reviews[a.id]?.rating || 0);
+                case 'rating_user_asc': return (reviews[a.id]?.rating || 0) - (reviews[b.id]?.rating || 0);
+                case 'rating_tmdb_desc': return (b.vote_average || 0) - (a.vote_average || 0);
+                case 'rating_tmdb_asc': return (a.vote_average || 0) - (b.vote_average || 0);
                 case 'votes_desc': return (b.vote_count || 0) - (a.vote_count || 0);
                 case 'title_asc': return (a.title || a.name || '').localeCompare(b.title || b.name || '');
                 case 'runtime_desc': {
@@ -84,7 +95,7 @@ export const useMovieFiltering = (
         });
 
         return result;
-    }, [tabFilteredMovies, filterGenre, filterYear, filterMinRating, filterStatus, currentSort, reviews]);
+    }, [tabFilteredMovies, filterGenre, filterYear, filterMinRating, filterMinTmdbRating, filterStatus, currentSort, reviews]);
 
     // 3. Grouping Logic
     const groupedMovies = useMemo<Record<string, Movie[]>>(() => {
@@ -94,14 +105,14 @@ export const useMovieFiltering = (
         
         processedMovies.forEach(m => {
             let key = 'Diğer';
-            if (currentGroup === 'genre') {
-                const gid = m.genre_ids?.[0];
-                key = gid ? (genres?.find(g => g.id === gid)?.name || 'Diğer') : 'Diğer';
-            } else if (currentGroup === 'year') {
+            if (currentGroup === 'year') {
                 key = (m.release_date || m.first_air_date || 'Bilinmiyor').substring(0, 4);
-            } else if (currentGroup === 'rating') {
+            } else if (currentGroup === 'rating_user') {
                 const r = reviews[m.id]?.rating;
                 key = r ? `${r} Puan` : 'Puanlanmamış';
+            } else if (currentGroup === 'rating_tmdb') {
+                const tr = m.vote_average;
+                key = tr ? `${Math.floor(tr)} Puan` : 'Puanlanmamış';
             } else if (currentGroup === 'director') {
                 const d = m.credits?.crew?.find(c => c.job === 'Director')?.name;
                 key = d || 'Bilinmiyor';
@@ -123,6 +134,7 @@ export const useMovieFiltering = (
         filterGenre, setFilterGenre,
         filterYear, setFilterYear,
         filterMinRating, setFilterMinRating,
+        filterMinTmdbRating, setFilterMinTmdbRating,
         filterStatus, setFilterStatus,
         currentGroup, setCurrentGroup,
         tabFilteredMovies,

@@ -17,6 +17,8 @@ interface CollectionControlsProps {
   onFilterYearChange: (year: number | null) => void;
   filterMinRating: number | null;
   onFilterMinRatingChange: (rating: number | null) => void;
+  filterMinTmdbRating: number | null;
+  onFilterMinTmdbRatingChange: (rating: number | null) => void;
   
   filterStatus: FilterStatusType;
   onFilterStatusChange: (status: FilterStatusType) => void;
@@ -38,6 +40,8 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
   onFilterYearChange,
   filterMinRating,
   onFilterMinRatingChange,
+  filterMinTmdbRating,
+  onFilterMinTmdbRatingChange,
   filterStatus,
   onFilterStatusChange,
   currentGroup,
@@ -54,8 +58,10 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
     { label: 'Eklenme (Eski → Yeni)', value: 'added_asc' },
     { label: 'Tarih (Yeni → Eski)', value: 'date_desc' },
     { label: 'Tarih (Eski → Yeni)', value: 'date_asc' },
-    { label: 'Puan (Yüksek → Düşük)', value: 'rating_desc' },
-    { label: 'Puan (Düşük → Yüksek)', value: 'rating_asc' },
+    { label: 'Senin Puanın (Yüksek → Düşük)', value: 'rating_user_desc' },
+    { label: 'Senin Puanın (Düşük → Yüksek)', value: 'rating_user_asc' },
+    { label: 'Genel Puan (Yüksek → Düşük)', value: 'rating_tmdb_desc' },
+    { label: 'Genel Puan (Düşük → Yüksek)', value: 'rating_tmdb_asc' },
     { label: 'Popülerlik', value: 'votes_desc' },
     { label: 'Süre (Uzun → Kısa)', value: 'runtime_desc' },
     { label: 'Süre (Kısa → Uzun)', value: 'runtime_asc' },
@@ -64,12 +70,12 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
 
   const groupOptions = [
     { label: 'Gruplama Yok', value: 'none' },
-    { label: 'Tür', value: 'genre' },
     { label: 'Yıl', value: 'year' },
     { label: 'Yönetmen', value: 'director' },
     { label: 'Başrol', value: 'actor' },
     { label: 'Süre', value: 'runtime' },
-    { label: 'Puan', value: 'rating' },
+    { label: 'Senin Puanın', value: 'rating_user' },
+    { label: 'Genel Puan', value: 'rating_tmdb' },
   ];
 
   const statusOptions = [
@@ -170,14 +176,24 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
                 activeColor="bg-blue-500 text-white shadow-blue-500/30 shadow-lg"
             />
 
-            {/* Rating */}
+            {/* TMDB Rating */}
             <FilterDropdown
-                label="Puan"
+                label="Genel Puan"
+                icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>}
+                value={filterMinTmdbRating}
+                options={ratingOptions}
+                onChange={onFilterMinTmdbRatingChange}
+                activeColor="bg-yellow-500 text-white shadow-yellow-500/30 shadow-lg"
+            />
+
+            {/* User Rating */}
+            <FilterDropdown
+                label="Senin Puanın"
                 icon={<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" /></svg>}
                 value={filterMinRating}
                 options={ratingOptions}
                 onChange={onFilterMinRatingChange}
-                activeColor="bg-yellow-500 text-white shadow-yellow-500/30 shadow-lg"
+                activeColor="bg-amber-500 text-white shadow-amber-500/30 shadow-lg"
             />
           </div>
       </div>
