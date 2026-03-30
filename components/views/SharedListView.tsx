@@ -30,6 +30,7 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
   const { theme, toggleTheme } = useTheme(); 
   
   const [activeTab, setActiveTab] = useState<TabOption>('movie');
+  const [isReviewMode, setIsReviewMode] = useState(false); // YENİ: İnceleme Modu State'i
 
   const allMovies = useMemo(() => sharedList?.movies || [], [sharedList]);
 
@@ -197,37 +198,74 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
             </div>
 
             <div className="mb-8">
-                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 px-1 flex items-center gap-2">
-                    <span className={`w-1 h-6 rounded-full ${activeTab === 'movie' ? 'bg-indigo-500' : 'bg-purple-500'}`}></span>
-                    Tüm {activeTab === 'movie' ? 'Filmler' : 'Diziler'}
-                </h3>
+                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 px-1 gap-4">
+                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                        <span className={`w-1 h-6 rounded-full ${activeTab === 'movie' ? 'bg-indigo-500' : 'bg-purple-500'}`}></span>
+                        {isReviewMode ? 'Sahibinin İncelemeleri' : `Tüm ${activeTab === 'movie' ? 'Filmler' : 'Diziler'}`}
+                    </h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
-                    {filteredMovies.map((movie) => (
-                        <MovieCard 
-                            key={movie.id}
-                            movie={movie} 
-                            isSelected={checkIsSelected(movie.id)}
-                            onToggleSelect={toggleMovieInCollection}
-                            onClick={onSelectMovie} 
-                            allGenres={genres}
-                            mediaType={activeTab}
-                            hideSelection={true} // KALP GİZLE
-                        />
-                    ))}
-                </div>
+                    {/* GÖRÜNÜM MODU TOGGLE (SWITCH) */}
+                    <div className="flex items-center gap-3 bg-neutral-100 dark:bg-neutral-800/50 p-1.5 rounded-2xl border border-neutral-200 dark:border-neutral-700/50">
+                        <button
+                            onClick={() => setIsReviewMode(false)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                                !isReviewMode
+                                    ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-white'
+                                    : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                            Izgara
+                        </button>
+                        <button
+                            onClick={() => setIsReviewMode(true)}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                                isReviewMode
+                                    ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                    : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+                            }`}
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            İncelemeler
+                        </button>
+                    </div>
+                 </div>
+
+                {isReviewMode ? (
+                    /* LİSTE SAHİBİNİN DEĞERLENDİRMELERİ BÖLÜMÜ (MOD AÇIKKEN) */
+                    sharedList.ownerId ? (
+                        <ErrorBoundary>
+                            <OwnerReviewsSection
+                                ownerId={sharedList.ownerId}
+                                ownerName={sharedList.owner || 'Liste Sahibi'}
+                                movies={filteredMovies}
+                            />
+                        </ErrorBoundary>
+                    ) : (
+                        <div className="text-center py-12 text-neutral-500">Liste sahibi bilgisi bulunamadı.</div>
+                    )
+                ) : (
+                    /* NORMAL IZGARA GÖRÜNÜMÜ (MOD KAPALIYKEN) */
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4 animate-fade-in">
+                        {filteredMovies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                isSelected={checkIsSelected(movie.id)}
+                                onToggleSelect={toggleMovieInCollection}
+                                onClick={onSelectMovie}
+                                allGenres={genres}
+                                mediaType={activeTab}
+                                hideSelection={true} // KALP GİZLE
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
-
-            {/* LİSTE SAHİBİNİN DEĞERLENDİRMELERİ BÖLÜMÜ */}
-            {sharedList.ownerId && (
-                <ErrorBoundary>
-                    <OwnerReviewsSection
-                        ownerId={sharedList.ownerId}
-                        ownerName={sharedList.owner || 'Liste Sahibi'}
-                        movies={filteredMovies}
-                    />
-                </ErrorBoundary>
-            )}
           </>
       ) : (
           <div className="flex flex-col items-center justify-center py-20 text-neutral-500 bg-neutral-50 dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 mx-4">

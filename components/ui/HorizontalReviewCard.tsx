@@ -26,37 +26,35 @@ const HorizontalReviewCard: React.FC<HorizontalReviewCardProps> = ({ movie, revi
         : review.comment;
 
     return (
-        <div className="flex flex-col md:flex-row bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100 dark:border-neutral-800 hover:-translate-y-1">
+        <div className="flex flex-col md:flex-row bg-white dark:bg-neutral-900 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border border-neutral-100 dark:border-neutral-800 hover:-translate-y-1 h-full items-start">
 
-            {/* SOL KISIM: Afiş ve Kısa Künye */}
-            <div className="w-full md:w-1/4 lg:w-1/5 relative group cursor-pointer shrink-0">
-                <div className="aspect-[2/3] md:h-full md:aspect-auto bg-neutral-800 relative overflow-hidden">
-                    {imageUrl ? (
-                        <img
-                            src={imageUrl}
-                            alt={title}
-                            loading="lazy"
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-neutral-500">
-                             Afiş Yok
-                        </div>
-                    )}
-
-                    {/* Dark gradient for mobile readability */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden" />
-
-                    {/* Mobile Only: Title over image */}
-                    <div className="absolute bottom-4 left-4 right-4 md:hidden text-white z-10">
-                        <h3 className="font-bold text-lg leading-tight drop-shadow-md">{title}</h3>
-                        {releaseYear && <span className="text-xs font-medium text-white/80">{releaseYear}</span>}
+            {/* SOL KISIM: Afiş (Sabit Aspect Ratio ve Align Top) */}
+            <div className="w-full md:w-[140px] lg:w-[160px] relative group cursor-pointer shrink-0 aspect-[2/3] overflow-hidden bg-neutral-800">
+                {imageUrl ? (
+                    <img
+                        src={imageUrl}
+                        alt={title}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-neutral-500 text-sm">
+                            Afiş Yok
                     </div>
+                )}
+
+                {/* Dark gradient for mobile readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent md:hidden pointer-events-none" />
+
+                {/* Mobile Only: Title over image */}
+                <div className="absolute bottom-3 left-3 right-3 md:hidden text-white z-10 pointer-events-none">
+                    <h3 className="font-bold text-lg leading-tight drop-shadow-md line-clamp-2">{title}</h3>
+                    {releaseYear && <span className="text-xs font-medium text-white/80">{releaseYear}</span>}
                 </div>
             </div>
 
             {/* SAĞ KISIM: İnceleme ve Detaylar */}
-            <div className="w-full md:w-3/4 lg:w-4/5 p-6 md:p-8 flex flex-col justify-between relative bg-neutral-50 dark:bg-neutral-900">
+            <div className="w-full md:flex-1 p-5 md:p-6 flex flex-col justify-between relative bg-neutral-50 dark:bg-neutral-900 h-full min-h-[210px]">
 
                 {/* Desktop Title & Date Header */}
                 <div className="hidden md:flex justify-between items-start mb-4 border-b border-neutral-200 dark:border-neutral-800 pb-4">
@@ -120,22 +118,25 @@ const HorizontalReviewCard: React.FC<HorizontalReviewCardProps> = ({ movie, revi
                     )}
                 </div>
 
-                {/* Alt Kategori / Etiketler (Opsiyonel) */}
+                {/* Alt Kategori / Etiketler (Hap Buton Tasarımı) */}
                 {(review.category || review.watchTime || review.character) && (
-                    <div className="mt-6 pt-4 border-t border-neutral-100 dark:border-neutral-800/50 flex flex-wrap gap-2">
+                    <div className="mt-5 pt-4 border-t border-neutral-100 dark:border-neutral-800/50 flex flex-wrap gap-2">
                         {review.category && review.category !== 'REVIEW' && (
-                             <span className="text-[10px] font-bold px-2.5 py-1 bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 rounded-md uppercase tracking-wider">
+                             <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 rounded-full border border-indigo-100 dark:border-indigo-800/30 uppercase tracking-wider transition-colors hover:bg-indigo-100 dark:hover:bg-indigo-900/40">
+                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                                  {review.category.replace('_', ' ')}
                              </span>
                         )}
                         {review.watchTime && (
-                             <span className="text-[10px] font-bold px-2.5 py-1 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-md border border-blue-100 dark:border-blue-800/30">
-                                 ⏱ {review.watchTime}
+                             <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800/30 uppercase tracking-wider transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/40">
+                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                 {review.watchTime}
                              </span>
                         )}
                         {review.hasSpoiler && (
-                            <span className="text-[10px] font-bold px-2.5 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md border border-red-100 dark:border-red-800/30">
-                                 🚨 SPOILER
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-bold px-3 py-1 bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 rounded-full border border-rose-100 dark:border-rose-800/30 uppercase tracking-wider transition-colors hover:bg-rose-100 dark:hover:bg-rose-900/40">
+                                 <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                 SPOILER
                             </span>
                         )}
                     </div>
