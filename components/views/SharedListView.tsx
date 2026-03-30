@@ -9,6 +9,7 @@ import CollectionAnalytics from '../analytics/CollectionAnalytics';
 import TopFavorites from '../dashboard/TopFavorites';
 import ErrorBoundary from '../ErrorBoundary';
 import { useTheme } from '../../context/ThemeContext'; 
+import OwnerReviewsSection from '../details/OwnerReviewsSection';
 
 interface SharedListViewProps {
   onSelectMovie: (movie: Movie) => void;
@@ -216,6 +217,17 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                     ))}
                 </div>
             </div>
+
+            {/* LİSTE SAHİBİNİN DEĞERLENDİRMELERİ BÖLÜMÜ */}
+            {sharedList.ownerId && (
+                <ErrorBoundary>
+                    <OwnerReviewsSection
+                        ownerId={sharedList.ownerId}
+                        ownerName={sharedList.owner || 'Liste Sahibi'}
+                        movies={filteredMovies}
+                    />
+                </ErrorBoundary>
+            )}
           </>
       ) : (
           <div className="flex flex-col items-center justify-center py-20 text-neutral-500 bg-neutral-50 dark:bg-neutral-900 rounded-3xl border border-neutral-200 dark:border-neutral-800 mx-4">

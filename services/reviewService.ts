@@ -314,6 +314,69 @@ export const reviewService = {
         }
     },
 
+    // 7. Kullanıcının Birden Fazla Film İçin Yorumlarını Getir (Toplu Çekim)
+    async getReviewsByUserAndMovies(userId: string, movieIds: number[]) {
+        if (!userId || userId.startsWith('guest-') || !movieIds || movieIds.length === 0) {
+            return [];
+        }
+
+        const { data, error } = await supabase
+            .from('reviews')
+            .select(`
+                id,
+                movie_id,
+                rating,
+                comment,
+                has_spoiler,
+                category,
+                created_at,
+                updated_at,
+                tags
+            `)
+            .eq('user_id', userId)
+            .in('movie_id', movieIds);
+
+        if (error || !data) {
+            console.error("Batch review fetch error:", error);
+            return [];
+        }
+
+        return data.map((r: any) => {
+            // Etiket Çözümleme
+            let allTags: string[] = r.tags || [];
+            let resolvedTags: PostCategory[] = [];
+            let character: string | undefined = undefined;
+            let watchTime: string | undefined = undefined;
+
+            allTags.forEach(tag => {
+                if (typeof tag === 'string') {
+                    if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                    else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                    else resolvedTags.push(tag as PostCategory);
+                }
+            });
+
+            if (resolvedTags.length === 0 && r.category) {
+                resolvedTags = [r.category as PostCategory];
+            }
+            if (resolvedTags.length === 0) resolvedTags = ['REVIEW'];
+
+            return {
+                id: r.id,
+                movieId: r.movie_id,
+                rating: r.rating,
+                comment: r.comment,
+                hasSpoiler: r.has_spoiler,
+                category: r.category || 'REVIEW',
+                tags: resolvedTags,
+                character: character,
+                watchTime: watchTime,
+                createdAt: r.created_at,
+                user_id: userId
+            } as UserReview;
+        });
+    },
+
     // 6. Şikayet Et
     async reportReview(params: any) {
         const { reviewId, reviewContent, reviewOwnerId, reporterId, reason, additionalDetails, movieTitle } = params;
