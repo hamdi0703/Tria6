@@ -243,6 +243,9 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                                 ownerId={sharedList.ownerId}
                                 ownerName={sharedList.owner || 'Liste Sahibi'}
                                 movies={filteredMovies}
+                                onSelectMovie={onSelectMovie}
+                                allGenres={genres}
+                                mediaType={activeTab}
                             />
                         </ErrorBoundary>
                     ) : (
