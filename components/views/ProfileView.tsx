@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Movie, Genre, Collection, SubscriptionTier } from '../../types';
 import { getAvatarUrl, getAvatarPersona } from '../../utils/avatarUtils';
-import { BACKDROP_BASE_URL } from '../../services/tmdbService';
+import { BACKDROP_BASE_URL, IMAGE_BASE_URL } from '../../services/tmdbService';
 import { useAuth } from '../../context/AuthContext';
 import { useCollectionContext } from '../../context/CollectionContext';
 import { useReviewContext } from '../../context/ReviewContext';
@@ -250,13 +250,13 @@ const ProfileView: React.FC<ProfileViewProps> = ({ username, genres, onSelectMov
                         return (
                             <div key={col.id} className="group bg-white dark:bg-neutral-900 rounded-2xl p-5 border border-neutral-200 dark:border-neutral-800 hover:border-indigo-500 dark:hover:border-indigo-500 transition-all cursor-pointer shadow-sm hover:shadow-lg flex flex-col md:flex-row gap-4" onClick={() => handleCollectionClick(col)}>
                                 <div 
-                                    className="w-full md:w-24 h-32 md:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-inner relative border border-neutral-100 dark:border-neutral-700"
+                                    className="w-full md:w-36 h-40 md:h-24 rounded-xl flex-shrink-0 overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow-inner relative border border-neutral-100 dark:border-neutral-700"
                                 >
                                     <div className="flex w-full h-full">
                                         {coverMovies.map((m: Movie) => (
                                             <img 
                                                 key={m.id} 
-                                                src={`${BACKDROP_BASE_URL}${m.poster_path}`} 
+                                                src={`${IMAGE_BASE_URL}${m.poster_path}`}
                                                 className="w-1/3 h-full object-cover" 
                                                 alt=""
                                             />

@@ -35,6 +35,25 @@ export const useProfileData = (
 
             // A. OWN PROFILE (Context Optimized)
             if (isOwner && authUser) {
+                // Fetch collection items for own collections since myCollections mostly has empty movies (lazy loaded)
+                const collectionIds = myCollections.map(c => c.id);
+                let allItems: any[] = [];
+                if (collectionIds.length > 0) {
+                    const { data: items } = await supabase
+                        .from('collection_items')
+                        .select('collection_id, movie_data, added_at')
+                        .in('collection_id', collectionIds);
+                    allItems = items || [];
+                }
+
+                const populatedCollections = myCollections.map(col => {
+                    const colItems = allItems.filter(item => item.collection_id === col.id);
+                    return {
+                        ...col,
+                        movies: colItems.map(item => ({ ...item.movie_data, addedAt: item.added_at }))
+                    };
+                });
+
                 const builtProfile: ProfileData = {
                     id: authUser.id,
                     username: authUser.user_metadata?.username,
@@ -42,7 +61,7 @@ export const useProfileData = (
                     bio: '',
                     website: '',
                     created_at: authUser.created_at,
-                    collections: myCollections,
+                    collections: populatedCollections,
                     tier: 'BASIC' // Default, fetch will overwrite
                 };
 
@@ -61,8 +80,8 @@ export const useProfileData = (
                 setReviews(reviewArray);
 
                 const cache: Record<number, Movie> = {};
-                myCollections.forEach(col => {
-                    col.movies.forEach(m => {
+                populatedCollections.forEach(col => {
+                    col.movies.forEach((m: Movie) => {
                         cache[m.id] = m;
                     });
                 });
@@ -104,16 +123,31 @@ export const useProfileData = (
                         .order('created_at', { ascending: false })
                 ]);
 
-                const collections: Collection[] = (collectionsResult.data || []).map((d: any) => ({
-                    id: d.id,
-                    name: d.name,
-                    description: d.description,
-                    isPublic: d.is_public,
-                    shareToken: d.share_token,
-                    coverImage: d.cover_image,
-                    movies: Array.isArray(d.movies) ? d.movies : [],
-                    ownerId: d.user_id
-                }));
+                let rawCollections = collectionsResult.data || [];
+                const collectionIds = rawCollections.map((c: any) => c.id);
+                let allItems: any[] = [];
+
+                if (collectionIds.length > 0) {
+                    const { data: items } = await supabase
+                        .from('collection_items')
+                        .select('collection_id, movie_data, added_at')
+                        .in('collection_id', collectionIds);
+                    allItems = items || [];
+                }
+
+                const collections: Collection[] = rawCollections.map((d: any) => {
+                    const colItems = allItems.filter(item => item.collection_id === d.id);
+                    return {
+                        id: d.id,
+                        name: d.name,
+                        description: d.description,
+                        isPublic: d.is_public,
+                        shareToken: d.share_token,
+                        coverImage: d.cover_image,
+                        movies: colItems.map(item => ({ ...item.movie_data, addedAt: item.added_at })),
+                        ownerId: d.user_id
+                    };
+                });
 
                 setProfile({
                     ...userProfile,
