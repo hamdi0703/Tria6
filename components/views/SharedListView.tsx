@@ -10,6 +10,7 @@ import TopFavorites from '../dashboard/TopFavorites';
 import ErrorBoundary from '../ErrorBoundary';
 import { useTheme } from '../../context/ThemeContext'; 
 import OwnerReviewsSection from '../details/OwnerReviewsSection';
+import { useOwnerReviewsBatch } from '../../hooks/useReviewQueries';
 
 interface SharedListViewProps {
   onSelectMovie: (movie: Movie) => void;
@@ -57,6 +58,10 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
       if (!user || !sharedList) return false;
       return user.id === sharedList.ownerId;
   }, [user, sharedList]);
+
+  // PREFETCH: Arka planda sahibinin yorumlarını çekmeye başla ki sekmeye geçişte anında yüklensin
+  // ÖNEMLİ: OwnerReviewsSection içinde filteredMovies.map(m => m.id) kullanıldığı için cache key'in birebir eşleşmesi adına burada da filteredMovies kullanıyoruz.
+  useOwnerReviewsBatch(sharedList?.ownerId || '', filteredMovies.map(m => m.id));
 
   if (!sharedList) {
     return (

@@ -35,6 +35,30 @@ export const useOwnerReview = (movieId: number, ownerId?: string) => {
     });
 };
 
+// Toplu Yorum Çekimi (OwnerReviewsSection vb. için)
+export const useOwnerReviewsBatch = (ownerId: string, movieIds: number[]) => {
+    return useQuery({
+        queryKey: ['ownerReviewsBatch', ownerId, movieIds],
+        queryFn: async () => {
+            if (!ownerId || movieIds.length === 0) return [];
+            const fetchedReviews = await reviewService.getReviewsByUserAndMovies(ownerId, movieIds);
+
+            // Sadece puanı veya yorumu olanları filtrele ve tarihe göre sırala
+            const validReviews = fetchedReviews.filter(r => (r.rating && r.rating > 0) || (r.comment && r.comment.trim() !== ''));
+
+            validReviews.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return dateB - dateA;
+            });
+
+            return validReviews;
+        },
+        enabled: isValidId(ownerId) && movieIds.length > 0,
+        staleTime: 1000 * 60 * 5, // 5 dakika cache (hız için)
+    });
+};
+
 // Mutation Hooks (Ekle/Sil)
 export const useReviewMutations = (movieId: number, userId?: string) => {
     const queryClient = useQueryClient();
