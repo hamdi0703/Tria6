@@ -17,7 +17,6 @@ interface MovieCardProps {
   ownerReview?: UserReview;
   priority?: boolean;
   isMultiSelectMode?: boolean; // NEW PROP
-  ownerReviewInfo?: { hasComment: boolean; rating?: number } | null;
 }
 
 const MovieCard: React.FC<MovieCardProps> = ({ 
@@ -28,8 +27,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
   hideSelection = false,
   ownerReview,
   priority = false,
-  isMultiSelectMode = false,
-  ownerReviewInfo
+  isMultiSelectMode = false
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -179,23 +177,6 @@ const MovieCard: React.FC<MovieCardProps> = ({
                     <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
-                </div>
-            </div>
-        )}
-
-        {/* NEW: OWNER REVIEW TOOLTIP ICON (Top Right) */}
-        {ownerReviewInfo && (
-            <div className="absolute top-2 right-2 z-40 group/tooltip">
-                <div className="w-6 h-6 rounded-full bg-indigo-600/90 text-white flex items-center justify-center backdrop-blur-md shadow-lg border border-white/20 cursor-help transition-transform hover:scale-110">
-                    <span className="text-xs font-bold italic font-serif">i</span>
-                </div>
-
-                {/* Tooltip text */}
-                <div className="absolute right-0 top-8 w-48 p-2.5 bg-neutral-900/95 text-white text-xs font-medium rounded-xl shadow-2xl border border-white/10 opacity-0 group-hover/tooltip:opacity-100 transform scale-95 group-hover/tooltip:scale-100 transition-all duration-200 pointer-events-none z-50 origin-top-right">
-                    <div className="flex items-start gap-2">
-                        <svg className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        <span>Kullanıcının bu yapıma ait {ownerReviewInfo.rating ? 'puanı ve ' : ''}yorumu bulunmaktadır.</span>
-                    </div>
                 </div>
             </div>
         )}

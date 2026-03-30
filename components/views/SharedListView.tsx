@@ -219,19 +219,31 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                             </svg>
                             Izgara
                         </button>
-                        <button
-                            onClick={() => setIsReviewMode(true)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
-                                isReviewMode
-                                    ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
-                                    : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
-                            }`}
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                            İncelemeler
-                        </button>
+                        <div className="relative group/tabinfo flex items-center">
+                            <button
+                                onClick={() => setIsReviewMode(true)}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                                    isReviewMode
+                                        ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                        : 'text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-300'
+                                }`}
+                            >
+                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                İncelemeler
+                            </button>
+                            {/* "i" INFO ICON & TOOLTIP */}
+                            <div className="absolute -right-2 -top-2 w-5 h-5 rounded-full bg-indigo-500 text-white flex items-center justify-center cursor-help z-10 border border-white dark:border-neutral-800 shadow-sm">
+                                <span className="text-[10px] font-bold italic font-serif">i</span>
+                            </div>
+                            <div className="absolute top-10 right-0 w-48 p-2.5 bg-neutral-900/95 dark:bg-white/95 text-white dark:text-neutral-900 text-xs font-medium rounded-xl shadow-2xl border border-white/10 dark:border-black/10 opacity-0 group-hover/tabinfo:opacity-100 pointer-events-none transform scale-95 group-hover/tabinfo:scale-100 transition-all duration-200 z-[60] origin-top-right">
+                                <div className="flex items-start gap-2">
+                                    <svg className="w-4 h-4 text-indigo-400 dark:text-indigo-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    <span>Liste sahibinin bu koleksiyondaki yapımlara verdiği puanları ve yorumları gösterir.</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                  </div>
 
@@ -243,9 +255,6 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
                                 ownerId={sharedList.ownerId}
                                 ownerName={sharedList.owner || 'Liste Sahibi'}
                                 movies={filteredMovies}
-                                onSelectMovie={onSelectMovie}
-                                allGenres={genres}
-                                mediaType={activeTab}
                             />
                         </ErrorBoundary>
                     ) : (
