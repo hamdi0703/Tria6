@@ -94,7 +94,7 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
 
   const genreOptions = [
       { label: 'Tümü', value: null },
-      ...genres.map(g => ({ label: g.name, value: g.id }))
+      ...(genres || []).map(g => ({ label: g.name, value: g.id }))
   ];
 
   const yearOptions = [
