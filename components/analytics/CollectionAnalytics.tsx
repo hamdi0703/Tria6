@@ -229,7 +229,6 @@ const CollectionAnalytics: React.FC<CollectionAnalyticsProps> = ({ movies, genre
                             <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Kalite</span>
                             <div className="flex items-center gap-2">
                                 <span className="text-2xl font-black text-neutral-900 dark:text-white">{stats.avgRating}</span>
-                                <span className="text-[9px] bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 px-1.5 py-0.5 rounded font-bold">{stats.topRatedCount} Başyapıt</span>
                             </div>
                         </div>
                     </div>
