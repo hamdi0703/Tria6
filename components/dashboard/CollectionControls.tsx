@@ -28,6 +28,10 @@ interface CollectionControlsProps {
   onGroupChange: (opt: GroupOptionType) => void;
   
   resultCount: number;
+
+  // View Mode
+  viewMode?: 'grid' | 'list';
+  onViewModeChange?: (mode: 'grid' | 'list') => void;
 }
 
 const CollectionControls: React.FC<CollectionControlsProps> = ({
@@ -46,7 +50,9 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
   onFilterStatusChange,
   currentGroup,
   onGroupChange,
-  resultCount
+  resultCount,
+  viewMode = 'grid',
+  onViewModeChange
 }) => {
   
   const currentYear = new Date().getFullYear();
@@ -129,12 +135,46 @@ const CollectionControls: React.FC<CollectionControlsProps> = ({
             />
         </div>
 
-        {/* Count Badge */}
-        <div className="flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-full self-start lg:self-center">
-            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-            <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">
-                {resultCount} Sonuç
-            </span>
+        <div className="flex items-center gap-4 self-start lg:self-center">
+            {/* View Toggles */}
+            {onViewModeChange && (
+                <div className="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">
+                    <button
+                        onClick={() => onViewModeChange('grid')}
+                        className={`p-1.5 rounded-lg transition-all ${
+                            viewMode === 'grid'
+                                ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                        }`}
+                        title="Izgara Görünümü"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                    </button>
+                    <button
+                        onClick={() => onViewModeChange('list')}
+                        className={`p-1.5 rounded-lg transition-all ${
+                            viewMode === 'list'
+                                ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                        }`}
+                        title="Liste Görünümü"
+                    >
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Count Badge */}
+            <div className="flex items-center gap-2 px-4 py-2 bg-neutral-100 dark:bg-neutral-800 rounded-full">
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <span className="text-xs font-bold text-neutral-600 dark:text-neutral-300">
+                    {resultCount} Sonuç
+                </span>
+            </div>
         </div>
       </div>
 

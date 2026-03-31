@@ -1,9 +1,6 @@
 $ vite
 
-  VITE v5.4.21  ready in 515 ms
+  VITE v5.4.21  ready in 325 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://192.168.0.2:3000/
-12:20:53 AM [vite] hmr update /components/views/ProfileView.tsx, /index.css
-12:21:18 AM [vite] hmr update /components/views/ProfileView.tsx, /index.css
-12:31:19 AM [vite] page reload page.html

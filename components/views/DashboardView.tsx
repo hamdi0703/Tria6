@@ -10,6 +10,7 @@ import CollectionAnalytics from '../analytics/CollectionAnalytics';
 import SmartRecs from '../dashboard/SmartRecs';
 import CollectionControls from '../dashboard/CollectionControls';
 import MovieCard from '../MovieCard';
+import MovieHorizontalCard from '../MovieHorizontalCard';
 import ErrorBoundary from '../ErrorBoundary';
 import { useCollectionStats } from '../../hooks/useCollectionStats';
 import { useMovieFiltering } from '../../hooks/useMovieFiltering';
@@ -49,6 +50,9 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
 
   // Stats Hook
   const { stats: collectionStats } = useCollectionStats(tabFilteredMovies, genres);
+
+  // View Mode State
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Favorites Modal State
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
@@ -160,9 +164,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
             currentGroup={currentGroup}
             onGroupChange={setCurrentGroup}
             resultCount={processedMovies.length}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
         />
 
-        {/* MOVIE GRID */}
+        {/* MOVIE GRID / LIST */}
         {Object.entries(groupedMovies).map(([groupName, movies]) => {
             const movieList = movies as Movie[];
             return (
@@ -173,19 +179,32 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
                     </h3>
                 )}
                 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
-                    {movieList.map(movie => (
-                        <MovieCard 
-                            key={movie.id}
-                            movie={movie} 
-                            isSelected={true} 
-                            onToggleSelect={toggleMovieInCollection}
-                            onClick={onSelectMovie}
-                            allGenres={genres}
-                            mediaType={activeTab}
-                        />
-                    ))}
-                </div>
+                {viewMode === 'grid' ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+                        {movieList.map(movie => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                isSelected={true}
+                                onToggleSelect={toggleMovieInCollection}
+                                onClick={onSelectMovie}
+                                allGenres={genres}
+                                mediaType={activeTab}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        {movieList.map(movie => (
+                            <MovieHorizontalCard
+                                key={movie.id}
+                                movie={movie}
+                                allGenres={genres}
+                                onClick={onSelectMovie}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
         )})}
 
