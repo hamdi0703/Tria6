@@ -10,9 +10,11 @@ import CollectionAnalytics from '../analytics/CollectionAnalytics';
 import SmartRecs from '../dashboard/SmartRecs';
 import CollectionControls from '../dashboard/CollectionControls';
 import MovieCard from '../MovieCard';
+import MovieHorizontalCard from '../MovieHorizontalCard';
 import ErrorBoundary from '../ErrorBoundary';
 import { useCollectionStats } from '../../hooks/useCollectionStats';
 import { useMovieFiltering } from '../../hooks/useMovieFiltering';
+import { useReviewContext } from '../../context/ReviewContext';
 
 interface DashboardViewProps {
   onSelectMovie: (movie: Movie) => void;
@@ -49,6 +51,12 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
 
   // Stats Hook
   const { stats: collectionStats } = useCollectionStats(tabFilteredMovies, genres);
+
+  // Reviews for filtering list mode
+  const { reviews } = useReviewContext();
+
+  // View Mode State
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // Favorites Modal State
   const [editingSlot, setEditingSlot] = useState<number | null>(null);
@@ -160,9 +168,11 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
             currentGroup={currentGroup}
             onGroupChange={setCurrentGroup}
             resultCount={processedMovies.length}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
         />
 
-        {/* MOVIE GRID */}
+        {/* MOVIE GRID / LIST */}
         {Object.entries(groupedMovies).map(([groupName, movies]) => {
             const movieList = movies as Movie[];
             return (
@@ -173,19 +183,44 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
                     </h3>
                 )}
                 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
-                    {movieList.map(movie => (
-                        <MovieCard 
-                            key={movie.id}
-                            movie={movie} 
-                            isSelected={true} 
-                            onToggleSelect={toggleMovieInCollection}
-                            onClick={onSelectMovie}
-                            allGenres={genres}
-                            mediaType={activeTab}
-                        />
-                    ))}
-                </div>
+                {viewMode === 'grid' ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-12">
+                        {movieList.map(movie => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                isSelected={true}
+                                onToggleSelect={toggleMovieInCollection}
+                                onClick={onSelectMovie}
+                                allGenres={genres}
+                                mediaType={activeTab}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        {movieList.filter(movie => {
+                            const rev = reviews[movie.id];
+                            return rev && (rev.rating > 0 || rev.comment);
+                        }).map(movie => (
+                            <MovieHorizontalCard
+                                key={movie.id}
+                                movie={movie}
+                                allGenres={genres}
+                                onClick={onSelectMovie}
+                                ownerReview={reviews[movie.id]}
+                            />
+                        ))}
+                        {movieList.filter(movie => {
+                            const rev = reviews[movie.id];
+                            return rev && (rev.rating > 0 || rev.comment);
+                        }).length === 0 && (
+                            <div className="text-center py-10 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800">
+                                <p className="text-neutral-500 text-sm font-medium">Bu grupta incelemesi veya puanı olan içerik bulunamadı.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
         )})}
 
