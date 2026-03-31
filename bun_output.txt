@@ -4,3 +4,5 @@ $ vite
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: http://192.168.0.2:3000/
+6:16:23 PM [vite] hmr update /components/MovieHorizontalCard.tsx, /index.css
+6:16:41 PM [vite] hmr update /components/views/DashboardView.tsx, /index.css

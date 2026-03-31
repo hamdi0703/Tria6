@@ -9,6 +9,8 @@ import CollectionAnalytics from '../analytics/CollectionAnalytics';
 import TopFavorites from '../dashboard/TopFavorites';
 import ErrorBoundary from '../ErrorBoundary';
 import { useTheme } from '../../context/ThemeContext'; 
+import MovieHorizontalCard from '../MovieHorizontalCard';
+import { supabase } from '../../services/supabaseClient';
 
 interface SharedListViewProps {
   onSelectMovie: (movie: Movie) => void;
@@ -29,8 +31,42 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
   const { theme, toggleTheme } = useTheme(); 
   
   const [activeTab, setActiveTab] = useState<TabOption>('movie');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [ownerReviews, setOwnerReviews] = useState<Record<number, any>>({});
 
   const allMovies = useMemo(() => sharedList?.movies || [], [sharedList]);
+
+  // Fetch owner reviews when viewing a shared list
+  React.useEffect(() => {
+      const fetchReviews = async () => {
+          if (!sharedList?.ownerId || sharedList.ownerId.startsWith('mock-')) return;
+          try {
+              const { data, error } = await supabase
+                  .from('reviews')
+                  .select('*')
+                  .eq('user_id', sharedList.ownerId);
+
+              if (!error && data) {
+                  const revMap: Record<number, any> = {};
+                  data.forEach(r => {
+                      revMap[r.movie_id] = {
+                          movieId: r.movie_id,
+                          rating: r.rating,
+                          comment: r.comment,
+                          character: r.character,
+                          watchTime: r.watch_time,
+                          createdAt: r.created_at
+                      };
+                  });
+                  setOwnerReviews(revMap);
+              }
+          } catch (err) {
+              console.error("Failed to load owner reviews for shared list", err);
+          }
+      };
+
+      fetchReviews();
+  }, [sharedList?.ownerId]);
 
   const filteredMovies = useMemo(() => {
       return allMovies.filter(m => {
@@ -196,25 +232,81 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
             </div>
 
             <div className="mb-8">
-                 <h3 className="text-xl font-bold text-neutral-900 dark:text-white mb-6 px-1 flex items-center gap-2">
-                    <span className={`w-1 h-6 rounded-full ${activeTab === 'movie' ? 'bg-indigo-500' : 'bg-purple-500'}`}></span>
-                    Tüm {activeTab === 'movie' ? 'Filmler' : 'Diziler'}
-                </h3>
+                 <div className="flex items-center justify-between mb-6 px-1">
+                     <h3 className="text-xl font-bold text-neutral-900 dark:text-white flex items-center gap-2">
+                        <span className={`w-1 h-6 rounded-full ${activeTab === 'movie' ? 'bg-indigo-500' : 'bg-purple-500'}`}></span>
+                        Tüm {activeTab === 'movie' ? 'Filmler' : 'Diziler'}
+                    </h3>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
-                    {filteredMovies.map((movie) => (
-                        <MovieCard 
-                            key={movie.id}
-                            movie={movie} 
-                            isSelected={checkIsSelected(movie.id)}
-                            onToggleSelect={toggleMovieInCollection}
-                            onClick={onSelectMovie} 
-                            allGenres={genres}
-                            mediaType={activeTab}
-                            hideSelection={true} // KALP GİZLE
-                        />
-                    ))}
+                    <div className="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-xl p-1">
+                        <button
+                            onClick={() => setViewMode('grid')}
+                            className={`p-1.5 rounded-lg transition-all ${
+                                viewMode === 'grid'
+                                    ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                            }`}
+                            title="Izgara Görünümü"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`p-1.5 rounded-lg transition-all ${
+                                viewMode === 'list'
+                                    ? 'bg-white dark:bg-neutral-700 shadow-sm text-indigo-600 dark:text-indigo-400'
+                                    : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-300'
+                            }`}
+                            title="Liste Görünümü"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+
+                {viewMode === 'grid' ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 px-4">
+                        {filteredMovies.map((movie) => (
+                            <MovieCard
+                                key={movie.id}
+                                movie={movie}
+                                isSelected={checkIsSelected(movie.id)}
+                                onToggleSelect={toggleMovieInCollection}
+                                onClick={onSelectMovie}
+                                allGenres={genres}
+                                mediaType={activeTab}
+                                hideSelection={true} // KALP GİZLE
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="flex flex-col gap-4 px-4">
+                        {filteredMovies.filter(movie => {
+                            const rev = ownerReviews[movie.id];
+                            return rev && (rev.rating > 0 || rev.comment);
+                        }).map(movie => (
+                            <MovieHorizontalCard
+                                key={movie.id}
+                                movie={movie}
+                                allGenres={genres}
+                                onClick={onSelectMovie}
+                                ownerReview={ownerReviews[movie.id]}
+                            />
+                        ))}
+                        {filteredMovies.filter(movie => {
+                            const rev = ownerReviews[movie.id];
+                            return rev && (rev.rating > 0 || rev.comment);
+                        }).length === 0 && (
+                            <div className="text-center py-10 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl border border-neutral-100 dark:border-neutral-800">
+                                <p className="text-neutral-500 text-sm font-medium">Bu listede yorumlanan veya puanlanan içerik bulunamadı.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
             </div>
           </>
       ) : (

@@ -9,6 +9,7 @@ interface MovieHorizontalCardProps {
   allGenres?: Genre[];
   onClick?: (movie: Movie) => void;
   priority?: boolean;
+  ownerReview?: UserReview;
 }
 
 const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
@@ -16,6 +17,7 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
   allGenres,
   onClick,
   priority = false,
+  ownerReview,
 }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -23,6 +25,8 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
 
   const { review: myReview } = useReviews(movie.id);
+
+  const displayReview = ownerReview || myReview;
 
   const title = movie.title || movie.name || 'Untitled';
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
@@ -45,9 +49,6 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
   const displayGenres = movie.genre_ids
     ? allGenres?.filter(g => movie.genre_ids?.includes(g.id)).map(g => g.name).slice(0, 3)
     : movie.genres?.map(g => g.name).slice(0, 3);
-
-  const director = movie.credits?.crew?.find(c => c.job === 'Director')?.name;
-  const actors = movie.credits?.cast?.slice(0, 2).map(c => c.name);
 
   const runtime = movie.runtime || (movie.episode_run_time?.[0] ? `${movie.episode_run_time[0]} dk (Bölüm)` : null);
 
@@ -130,7 +131,7 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
             </div>
         </div>
 
-        {/* Meta: Genres, Director, Cast */}
+        {/* Meta: Genres */}
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs">
             {displayGenres && displayGenres.length > 0 && (
                 <div className="flex gap-1.5">
@@ -141,48 +142,64 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
                     ))}
                 </div>
             )}
-
-            {(director || (actors && actors.length > 0)) && (
-                <div className="flex items-center gap-3 text-neutral-500 dark:text-neutral-400">
-                    {director && <span className="line-clamp-1"><strong className="font-semibold text-neutral-700 dark:text-neutral-300">Yön:</strong> {director}</span>}
-                    {actors && actors.length > 0 && <span className="line-clamp-1 hidden md:block"><strong className="font-semibold text-neutral-700 dark:text-neutral-300">Oyuncular:</strong> {actors.join(', ')}</span>}
-                </div>
-            )}
         </div>
 
         {/* Separator if review exists */}
-        {(myReview?.rating || myReview?.comment) && (
+        {(displayReview?.rating || displayReview?.comment) && (
              <div className="h-px w-full bg-neutral-100 dark:bg-neutral-800 my-2" />
         )}
 
         {/* 3. USER REVIEW & RATING SECTION */}
-        {(myReview?.rating || myReview?.comment) && (
+        {(displayReview?.rating || displayReview?.comment) && (
             <div className="mt-auto pt-2 flex flex-col gap-3">
-                {/* User Rating Badge */}
-                {myReview.rating > 0 && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">Senin Puanın:</span>
-                        <div className="flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 px-2 py-1 rounded-lg font-black text-sm border border-indigo-100 dark:border-indigo-500/20">
-                            <span>{myReview.rating}</span>
-                            <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+
+                {/* User Rating & Review Meta Info (Character, Time) */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+
+                    {displayReview.rating > 0 && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
+                                {ownerReview ? 'Puanı:' : 'Senin Puanın:'}
+                            </span>
+                            <div className="flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 px-2 py-1 rounded-lg font-black text-sm border border-indigo-100 dark:border-indigo-500/20">
+                                <span>{displayReview.rating}</span>
+                                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
+
+                    {(displayReview.character || displayReview.watchTime) && (
+                        <div className="flex items-center gap-3 text-[10px] md:text-xs text-neutral-500 dark:text-neutral-400 font-medium ml-auto">
+                            {displayReview.character && (
+                                <span className="flex items-center gap-1">
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                    {displayReview.character}
+                                </span>
+                            )}
+                            {displayReview.watchTime && (
+                                <span className="flex items-center gap-1">
+                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                    {displayReview.watchTime}
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
 
                 {/* Review Comment */}
-                {myReview.comment && (
-                    <div className="relative">
+                {displayReview.comment && (
+                    <div className="relative border-l-2 border-neutral-300 dark:border-neutral-600 pl-3 py-1">
                         <div
                             className={`text-sm text-neutral-600 dark:text-neutral-300 italic transition-all duration-500 ease-in-out overflow-hidden leading-relaxed ${isExpanded ? 'max-h-[1000px]' : 'line-clamp-3 max-h-[4.5rem]'}`}
                         >
-                            "{myReview.comment}"
+                            "{displayReview.comment}"
                         </div>
 
-                        {/* Always show toggle if comment is long enough (simple heuristic: > 150 chars, but ideally based on ref height) */}
-                        {myReview.comment.length > 120 && (
+                        {/* Always show toggle if comment is long enough (simple heuristic) */}
+                        {displayReview.comment.length > 120 && (
                             <button
                                 onClick={toggleExpand}
-                                className="mt-2 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 flex items-center gap-1 transition-colors"
+                                className="mt-2 text-xs font-bold text-neutral-500 hover:text-indigo-600 dark:text-neutral-400 dark:hover:text-indigo-400 flex items-center gap-1 transition-colors"
                             >
                                 {isExpanded ? 'Daha Az Göster' : 'Devamını Oku'}
                                 <svg className={`w-3 h-3 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
