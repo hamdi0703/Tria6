@@ -41,10 +41,10 @@ const OwnerReviewsSection: React.FC<OwnerReviewsSectionProps> = ({ ownerId, owne
         <div className="animate-fade-in px-4 md:px-0 py-8 relative">
 
             {/* ZAMAN ÇİZELGESİ (TIMELINE) ÇİZGİSİ */}
-            <div className="absolute left-[38px] md:left-[45px] top-12 bottom-0 w-0.5 bg-gradient-to-b from-indigo-500/50 via-neutral-200 dark:via-neutral-800 to-transparent z-0 hidden md:block rounded-full"></div>
+            <div className="absolute left-[38px] md:left-[45px] top-16 bottom-0 w-1 bg-gradient-to-b from-indigo-500 via-indigo-200 dark:via-indigo-900/30 to-transparent z-0 hidden md:block rounded-full opacity-60"></div>
 
             {/* KARTLAR (TEK SÜTUN, YUKARIDAN AŞAĞIYA TIMELINE) */}
-            <div className="flex flex-col gap-10 lg:gap-14 relative z-10">
+            <div className="flex flex-col gap-12 lg:gap-16 relative z-10">
                 {reviews.map((review, index) => {
                     const movie = movies.find(m => m.id === review.movieId);
                     if (!movie) return null;
@@ -54,15 +54,18 @@ const OwnerReviewsSection: React.FC<OwnerReviewsSectionProps> = ({ ownerId, owne
                             key={review.id}
                             className="relative flex items-center md:items-stretch group"
                             style={{
-                                animation: `fade-in-up 0.6s ease-out forwards`,
-                                animationDelay: `${index * 100}ms`,
+                                animation: `fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards`,
+                                animationDelay: `${index * 120}ms`,
                                 opacity: 0 // Başlangıçta görünmez, animasyonla gelir
                             }}
                         >
 
-                            {/* TIMELINE NOKTASI (Sadece Desktop) */}
-                            <div className="hidden md:flex flex-col items-center justify-start mr-8 mt-6 relative z-10 shrink-0">
-                                <div className="w-4 h-4 rounded-full bg-indigo-500 border-4 border-neutral-50 dark:border-neutral-900 shadow-[0_0_15px_rgba(99,102,241,0.5)] group-hover:scale-150 group-hover:bg-indigo-400 transition-all duration-300"></div>
+                            {/* TIMELINE NOKTASI VE PULSE EFEKTİ (Sadece Desktop) */}
+                            <div className="hidden md:flex flex-col items-center justify-start mr-8 mt-8 relative z-10 shrink-0">
+                                {/* Dış Pulse Halkası */}
+                                <div className="absolute w-8 h-8 rounded-full bg-indigo-400/20 animate-pulse-slow"></div>
+                                {/* İç Nokta */}
+                                <div className="w-4 h-4 rounded-full bg-indigo-500 border-2 border-white dark:border-neutral-900 shadow-[0_0_15px_rgba(99,102,241,0.6)] group-hover:scale-150 group-hover:bg-indigo-400 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.8)] transition-all duration-300 relative z-10"></div>
                             </div>
 
                             {/* KART (Tek sütunda tam genişlik yayılır) */}
@@ -82,8 +85,15 @@ const OwnerReviewsSection: React.FC<OwnerReviewsSectionProps> = ({ ownerId, owne
             {/* ANIMATION KEYFRAMES (Eğer global.css'de yoksa diye inline eklendi) */}
             <style dangerouslySetInnerHTML={{__html: `
                 @keyframes fade-in-up {
-                    0% { opacity: 0; transform: translateY(30px); }
+                    0% { opacity: 0; transform: translateY(40px); }
                     100% { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes pulse-slow {
+                    0%, 100% { transform: scale(1); opacity: 0.5; }
+                    50% { transform: scale(1.5); opacity: 0.1; }
+                }
+                .animate-pulse-slow {
+                    animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
                 }
             `}} />
         </div>
