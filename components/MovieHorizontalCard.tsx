@@ -105,110 +105,98 @@ const MovieHorizontalCard: React.FC<MovieHorizontalCardProps> = ({
       <div className="flex flex-col flex-grow p-5 sm:p-6 w-full min-w-0">
 
         {/* Header: Title, Year, Rating */}
-        <div className="flex items-start justify-between gap-4 mb-2">
+        <div className="flex items-start justify-between gap-4 mb-3">
             <div>
                 <h3 className="text-lg md:text-xl font-bold text-neutral-900 dark:text-white line-clamp-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
                     {title}
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400 mt-1 font-medium">
+                <div className="flex items-center gap-2 text-[10px] md:text-xs text-neutral-400 dark:text-neutral-500 mt-0.5 font-medium">
                     {releaseYear && <span>{releaseYear}</span>}
                     {runtime && (
                         <span className="flex items-center gap-1">
-                            <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-600"></span>
+                            <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700"></span>
                             {runtime}
                         </span>
                     )}
+                    {/* General TMDB Rating (Faded) */}
+                    <div className="flex items-center gap-1 ml-2 opacity-70">
+                        <span className="w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700"></span>
+                        <svg className="w-3 h-3 text-yellow-500 fill-current ml-1" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        <span>{rating}</span>
+                    </div>
                 </div>
-            </div>
-
-            {/* General TMDB Rating */}
-            <div className="flex flex-col items-end flex-shrink-0 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl px-3 py-1.5 border border-neutral-100 dark:border-neutral-800">
-                 <div className="flex items-center gap-1">
-                    <svg className="w-3.5 h-3.5 text-yellow-500 fill-current" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-                    <span className="text-sm font-bold text-neutral-900 dark:text-white">{rating}</span>
-                </div>
-                <span className="text-[10px] text-neutral-400 font-medium">Genel</span>
             </div>
         </div>
 
-        {/* Meta: Genres */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mb-4 text-xs">
-            {displayGenres && displayGenres.length > 0 && (
-                <div className="flex gap-1.5">
-                    {displayGenres.map((g, i) => (
-                        <span key={i} className="px-2 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 font-medium border border-neutral-200 dark:border-neutral-700">
-                            {g}
-                        </span>
-                    ))}
-                </div>
-            )}
-        </div>
-
-        {/* Separator if review exists */}
+        {/* 3. USER REVIEW & RATING SECTION (PROMINENT) */}
         {(displayReview?.rating || displayReview?.comment) && (
-             <div className="h-px w-full bg-neutral-100 dark:bg-neutral-800 my-2" />
-        )}
+            <div className="mt-auto pt-2 flex flex-col gap-4">
 
-        {/* 3. USER REVIEW & RATING SECTION */}
-        {(displayReview?.rating || displayReview?.comment) && (
-            <div className="mt-auto pt-2 flex flex-col gap-3">
+                {/* Big Review Block */}
+                <div className="relative bg-neutral-50 dark:bg-neutral-800/40 rounded-2xl p-4 sm:p-5 border border-neutral-100 dark:border-neutral-800/80 shadow-sm transition-all group-hover:shadow-md overflow-hidden">
 
-                {/* User Rating & Review Meta Info (Character, Time) */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
+                    {/* Vibrant left accent line */}
+                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-indigo-500 to-purple-500"></div>
 
-                    {displayReview.rating > 0 && (
-                        <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-neutral-500 dark:text-neutral-400">
-                                {ownerReview ? 'Puanı:' : 'Senin Puanın:'}
-                            </span>
-                            <div className="flex items-center gap-1 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 px-2 py-1 rounded-lg font-black text-sm border border-indigo-100 dark:border-indigo-500/20">
-                                <span>{displayReview.rating}</span>
-                                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {/* Top Row inside Review Block: Rating Badge & Pills */}
+                    <div className="flex flex-wrap items-start justify-between gap-3 mb-3 pl-1">
+
+                        {/* Huge User Rating Badge */}
+                        {displayReview.rating > 0 && (
+                            <div className="flex flex-col items-start gap-0.5">
+                                <span className="text-[10px] uppercase tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
+                                    {ownerReview ? 'Puanı' : 'Senin Puanın'}
+                                </span>
+                                <div className="flex items-center gap-1.5 bg-indigo-600 text-white px-3 py-1.5 rounded-xl shadow-lg shadow-indigo-500/30">
+                                    <span className="font-black text-lg md:text-xl leading-none">{displayReview.rating}</span>
+                                    <svg className="w-4 h-4 md:w-5 md:h-5 fill-current text-yellow-300 drop-shadow-sm" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {(displayReview.character || displayReview.watchTime) && (
-                        <div className="flex items-center gap-3 text-[10px] md:text-xs text-neutral-500 dark:text-neutral-400 font-medium ml-auto">
-                            {displayReview.character && (
-                                <span className="flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-                                    {displayReview.character}
-                                </span>
-                            )}
-                            {displayReview.watchTime && (
-                                <span className="flex items-center gap-1">
-                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    {displayReview.watchTime}
-                                </span>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                {/* Review Comment */}
-                {displayReview.comment && (
-                    <div className="relative border-l-2 border-neutral-300 dark:border-neutral-600 pl-3 py-1">
-                        <div
-                            className={`text-sm text-neutral-600 dark:text-neutral-300 italic transition-all duration-500 ease-in-out overflow-hidden leading-relaxed ${isExpanded ? 'max-h-[1000px]' : 'line-clamp-3 max-h-[4.5rem]'}`}
-                        >
-                            "{displayReview.comment}"
-                        </div>
-
-                        {/* Always show toggle if comment is long enough (simple heuristic) */}
-                        {displayReview.comment.length > 120 && (
-                            <button
-                                onClick={toggleExpand}
-                                className="mt-2 text-xs font-bold text-neutral-500 hover:text-indigo-600 dark:text-neutral-400 dark:hover:text-indigo-400 flex items-center gap-1 transition-colors"
-                            >
-                                {isExpanded ? 'Daha Az Göster' : 'Devamını Oku'}
-                                <svg className={`w-3 h-3 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                        {/* Right side pills (Character / Time) */}
+                        {(displayReview.character || displayReview.watchTime) && (
+                            <div className="flex flex-col md:flex-row items-end md:items-center gap-2 mt-1 md:mt-0 ml-auto">
+                                {displayReview.character && (
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-200/50 dark:bg-neutral-700/50 text-neutral-600 dark:text-neutral-300 rounded-lg text-[10px] font-bold border border-neutral-300/50 dark:border-neutral-600/50">
+                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                        <span className="line-clamp-1 max-w-[100px]">{displayReview.character}</span>
+                                    </div>
+                                )}
+                                {displayReview.watchTime && (
+                                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-neutral-200/50 dark:bg-neutral-700/50 text-neutral-600 dark:text-neutral-300 rounded-lg text-[10px] font-bold border border-neutral-300/50 dark:border-neutral-600/50">
+                                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        <span className="whitespace-nowrap">{displayReview.watchTime}</span>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
-                )}
+
+                    {/* Review Comment (Large & Central) */}
+                    {displayReview.comment && (
+                        <div className="relative pl-1">
+                            <div
+                                className={`text-sm md:text-base text-neutral-800 dark:text-neutral-200 font-medium leading-relaxed transition-all duration-500 ease-in-out overflow-hidden ${isExpanded ? 'max-h-[1500px]' : 'line-clamp-3 max-h-[4.5rem] md:max-h-[5rem]'}`}
+                            >
+                                {displayReview.comment}
+                            </div>
+
+                            {/* Expand button */}
+                            {displayReview.comment.length > 120 && (
+                                <button
+                                    onClick={toggleExpand}
+                                    className="mt-3 text-xs md:text-sm font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center gap-1 transition-colors w-full justify-center py-1.5 bg-indigo-50/50 dark:bg-indigo-500/10 rounded-lg"
+                                >
+                                    {isExpanded ? 'Daha Az Göster' : 'Devamını Oku'}
+                                    <svg className={`w-3.5 h-3.5 md:w-4 md:h-4 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
             </div>
         )}
 
