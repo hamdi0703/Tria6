@@ -208,6 +208,7 @@ const DashboardView: React.FC<DashboardViewProps> = ({ onSelectMovie, genres }) 
                                 movie={movie}
                                 allGenres={genres}
                                 onClick={onSelectMovie}
+                                ownerReview={reviews[movie.id]}
                             />
                         ))}
                         {movieList.filter(movie => {

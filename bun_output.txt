@@ -7,3 +7,4 @@ $ vite
 6:16:23 PM [vite] hmr update /components/MovieHorizontalCard.tsx, /index.css
 6:16:41 PM [vite] hmr update /components/views/DashboardView.tsx, /index.css
 6:43:14 PM [vite] hmr update /components/MovieHorizontalCard.tsx, /index.css
+7:05:39 PM [vite] hmr update /components/views/DashboardView.tsx, /index.css

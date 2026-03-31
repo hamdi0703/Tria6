@@ -49,12 +49,23 @@ const SharedListView: React.FC<SharedListViewProps> = ({ onSelectMovie, genres, 
               if (!error && data) {
                   const revMap: Record<number, any> = {};
                   data.forEach(r => {
+                      let character: string | undefined = undefined;
+                      let watchTime: string | undefined = undefined;
+
+                      const allTags: string[] = r.tags || [];
+                      allTags.forEach(tag => {
+                          if (typeof tag === 'string') {
+                              if (tag.startsWith('CHARACTER:')) character = tag.replace('CHARACTER:', '');
+                              else if (tag.startsWith('TIME:')) watchTime = tag.replace('TIME:', '');
+                          }
+                      });
+
                       revMap[r.movie_id] = {
                           movieId: r.movie_id,
                           rating: r.rating,
                           comment: r.comment,
-                          character: r.character,
-                          watchTime: r.watch_time,
+                          character: character,
+                          watchTime: watchTime,
                           createdAt: r.created_at
                       };
                   });
